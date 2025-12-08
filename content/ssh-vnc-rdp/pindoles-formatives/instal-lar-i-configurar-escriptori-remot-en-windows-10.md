@@ -10,15 +10,15 @@ Podem habilitar el servei d'accés a l'escriptori remot a Windows 10, per a pode
 
 Obrim l'aplicació de configuració del sistema:
 
-<figure><img src="../.gitbook/assets/image (75).png" alt=""><figcaption><p>Obrir la configuració del sistema.</p></figcaption></figure>
+<figure><img src="../assets/image (75).png" alt=""><figcaption><p>Obrir la configuració del sistema.</p></figcaption></figure>
 
 En la configuració del sistema, busquem l'opció 'configuració d'escriptori remot'
 
-<figure><img src="../.gitbook/assets/image (76).png" alt=""><figcaption><p>Obrir la configuració de l'escriptori remot</p></figcaption></figure>
+<figure><img src="../assets/image (76).png" alt=""><figcaption><p>Obrir la configuració de l'escriptori remot</p></figcaption></figure>
 
 Habilitem la funcionalitat d'escriptori remot:
 
-<figure><img src="../.gitbook/assets/image (77).png" alt=""><figcaption><p>Habilitar la funcionalitat d'escriptori remot</p></figcaption></figure>
+<figure><img src="../assets/image (77).png" alt=""><figcaption><p>Habilitar la funcionalitat d'escriptori remot</p></figcaption></figure>
 
 
 

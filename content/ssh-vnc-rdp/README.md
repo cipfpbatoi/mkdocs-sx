@@ -8,15 +8,15 @@ Partim d'una màquina virtual, amb un sistema operatiu basat a Ubuntu Server 24.
 
 * Una connectada a NAT, perquè el servidor tinga accés a internet i puga instal·lar paquets.
 
-<figure><img src=".gitbook/assets/image (5).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a NAT</p></figcaption></figure>
+<figure><img src="assets/image (5).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a NAT</p></figcaption></figure>
 
 * Una connectada a la xarxa interna 'aula'.
 
-<figure><img src=".gitbook/assets/image (3).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
+<figure><img src="assets/image (3).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
 
 * Una connectada a la xarxa 'soles anfitrio', per a poder connectar a la màquina virtual amb ssh.
 
-<figure><img src=".gitbook/assets/image (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'només amfitrió'</p></figcaption></figure>
+<figure><img src="assets/image (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'només amfitrió'</p></figcaption></figure>
 
 Obrim un terminal, per a fer les operacions de configuració:
 

@@ -6,7 +6,7 @@ description: Configuració de les targetes de xarxa a Ubuntu 24.04 i LUbuntu 24.
 
 Partim d'una màquina virtual, amb un sistema operatiu basat a Ubuntu 24.04, i que té configurada una interfície de xarxa connectada a la xarxa interna 'aula'.
 
-<figure><img src="../.gitbook/assets/image.png" alt=""><figcaption><p>Configuració de la interfície de xarxa a VirtualBox</p></figcaption></figure>
+<figure><img src="../assets/image.png" alt=""><figcaption><p>Configuració de la interfície de xarxa a VirtualBox</p></figcaption></figure>
 
 Obrim un terminal, per a fer les operacions de configuració:
 

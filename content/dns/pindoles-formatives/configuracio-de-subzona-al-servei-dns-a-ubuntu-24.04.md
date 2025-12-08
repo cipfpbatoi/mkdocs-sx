@@ -12,7 +12,7 @@ En primer lloc, configurarem el servidor DNS que actua com a servidor de zona de
 
 La màquina virtual d'aquest servidor té configurada una interfície de xarxa, connectada a la xarxa interna 'aula'.
 
-<figure><img src="../.gitbook/assets/image (62).png" alt=""><figcaption><p>Configuració de xarxa interna.</p></figcaption></figure>
+<figure><img src="../assets/image (62).png" alt=""><figcaption><p>Configuració de xarxa interna.</p></figcaption></figure>
 
 Obrim un terminal, per a fer les operacions de configuració:
 
@@ -210,11 +210,11 @@ La màquina virtual d'aquest servidor té configurades dues interfície de xarxa
 
 * Una connectada a NAT, perquè el servidor tinga accés a internet i puga instal·lar paquets.
 
-<figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a NAT</p></figcaption></figure>
+<figure><img src="../assets/image (3).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a NAT</p></figcaption></figure>
 
 * Una connectada a la xarxa interna 'aula'.
 
-<figure><img src="../.gitbook/assets/image (62) (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
+<figure><img src="../assets/image (62) (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
 
 {% hint style="info" %}
 Per a configurar routing, NAT i DHCP, podeu consultar els tutorials de les unitats anteriors.

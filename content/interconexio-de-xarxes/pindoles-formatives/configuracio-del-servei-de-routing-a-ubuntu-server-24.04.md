@@ -8,7 +8,7 @@ description: Configuració d'una porta d'enllaç amb Ubuntu server 24.04 i el pr
 
 En aquest exemple, partim d'una configuració de xarxa com la mostrada a la següent imatge:
 
-<figure><img src="../.gitbook/assets/UD00P01. esquema de red a configurar.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../assets/UD00P01. esquema de red a configurar.png" alt=""><figcaption></figcaption></figure>
 
 Suposem configurades les targetes de xarxa interna de les màquines virtuals, amb IP fixa, dins de la xarxa 192.168.0.0/24.
 
@@ -266,4 +266,4 @@ PING www.google.com (142.250.184.4) 56(84) bytes of data.
 
 Si obrim el navegador web del client, podrem accedir a la web de l'institut, publicada a internet, fent servir la màquina server com a proxy de connexió.
 
-<figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption><p>Pàgina web visitada des de la màquina client, a través de la porta d'enllaç configurada a la xarxa 'aula'</p></figcaption></figure>
+<figure><img src="../assets/image (1).png" alt=""><figcaption><p>Pàgina web visitada des de la màquina client, a través de la porta d'enllaç configurada a la xarxa 'aula'</p></figcaption></figure>
