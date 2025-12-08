@@ -1,0 +1,92 @@
+site_name: Programació Orientada a Objectes
+site_description: Materials POO per a l'aula
+site_author: Arturo Candela
+
+docs_dir: '02-programacio/27 - Programacio orientada a objectes. Clases. Herencia. Polimorfisme. Llenguatges/md'
+site_dir: 'docs'
+
+nav:
+    - Home: index.md
+    - 1. Introducció: 01-introduccio.md
+    - 2. Classes i Objectes:
+        - Classes i Objectes: 02-classes-objectes.md
+        - Associacions (Agregació/Composició): 02-2-associacions.md
+    - 3. Els 4 Pilars:
+        - Encapsulació: 03-pilars/03-1-encapsulacio.md
+        - Abstracció: 03-pilars/03-2-abstraccio.md
+        - Herència:
+            - Qué es: 03-pilars/03-3-herencia.md
+            - Classes Abstractes: 03-pilars/03-3-1-classes-abstractes.md
+            - Interfícies: 03-pilars/03-3-2-interficies.md
+        - Polimorfisme:
+            - Polimorfisme (visió general): 03-pilars/03-4-polimorfisme.md
+            - Sobrecàrrega (ad-hoc): 03-pilars/03-4-1-sobrecàrrega.md
+            - Sobreescriptura (d’inclusió): 03-pilars/03-4-2-sobreescriptura.md
+            - Variables polimòrfiques: 03-pilars/03-4-3-variables-polimorfes.md
+    - 4. Llenguatges: 
+        - Més Representatius: 04-llenguatges.md
+        - Exemple visual (LSP): 04-1-principi-liskov.md
+    - 5. Conclusió: 05-conclusio.md
+    - 6. Bibliografia: 06-bibliografia.md
+    - 7. About: 07-about.md
+
+    - Exercicis: exercicis.md
+
+extra:
+  contact:
+    name: "Arturo Candela"
+    email: "a.candelamolto+poo@edu.gva.es"
+    blog: "https://portal.edu.gva.es/blogs/s1/arturocandela/"
+
+
+site_url: https://arturocandela.github.io/temari-pes-osc/
+repo_url: https://github.com/arturocandela/temari-pes-osc
+repo_name: temari-pes-osc
+
+theme:
+  name: material
+  language: ca
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.instant
+    - toc.integrate
+    - content.code.copy
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Mode fosc
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Mode clar
+
+plugins:
+  - search
+  - page-to-pdf     # Botó “Download PDF” per pàgina
+  - print-site:     # /print_page per traure-ho tot en un PDF del navegador
+      add_to_navigation: false
+      print_page_title: "Imprimir tot el lloc"
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.details          # admonitions plegables
+  - pymdownx.superfences      # blocs de codi/mermaid
+  - pymdownx.inlinehilite
+  - pymdownx.highlight:
+      linenums: true          # numeració de línies
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Mermaid (diagrames)
+extra_javascript:
+  - https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js
+  - javascripts/mermaid-init.js
