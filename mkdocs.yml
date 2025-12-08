@@ -112,9 +112,9 @@ extra:
     blog: "https://portal.edu.gva.es/blogs/s1/arturocandela/"
 
 
-site_url: https://arturocandela.github.io/temari-pes-osc/
-repo_url: https://github.com/arturocandela/temari-pes-osc
-repo_name: temari-pes-osc
+site_url: https://cipfpbatoi.github.io/mkdocs-sx/
+repo_url: https://github.com/cipfpbatoi/mkdocs-sx
+repo_name: mkdocs-sx
 
 theme:
   name: material
