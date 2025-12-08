@@ -1,0 +1,5 @@
+mkdocs>=1.6
+mkdocs-material>=9.5
+pymdown-extensions>=10.8
+mkdocs-page-pdf>=0.3
+mkdocs-print-site-plugin>=2.6
