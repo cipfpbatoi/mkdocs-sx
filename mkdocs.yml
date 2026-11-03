@@ -55,6 +55,7 @@ nav:
         - "AF.3.1.9 — Instal·lar i configurar escriptori remot en Windows 10": "ssh-vnc-rdp/pindoles-formatives/instal-lar-i-configurar-escriptori-remot-en-windows-10.md"
         - "AF.3.1.10 — Connectar des de Windows a un escriptori remot RDP": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-windows-a-un-escriptori-remot-rdp.md"
         - "AF.3.1.11 — Connectar des de Linux a un escriptori remot RDP": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-linux-a-un-escriptori-remot-rdp.md"
+        - "AF.3.1.12 — Administració d'SSH amb Webmin a través d'un túnel SSH": "ssh-vnc-rdp/pindoles-formatives/af.3.1.12-administracio-dssh-amb-webmin-a-traves-dun-tunel-ssh.md"
       - "Pràctiques":
         - "AF.3.2.1 — Configuració i ús d'un servidor SSH Linux": "ssh-vnc-rdp/practiques/ud03p01.-configuracio-i-us-dun-servidor-ssh-linux.md"
         - "AF.3.2.2 — Configuració i ús d'un servei d'escriptori remot amb VNC": "ssh-vnc-rdp/practiques/ud03p02.-configuracio-i-us-dun-servei-descriptori-remot-amb-vnc.md"

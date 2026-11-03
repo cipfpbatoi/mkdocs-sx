@@ -94,12 +94,12 @@ I seleccionarem el parell de claus amb el que connectarem a la instància.&#x20;
 
 <figure><img src="../assets/image (141).png" alt=""><figcaption><p>Selecció del parell de claus per autenticar l'administrador</p></figcaption></figure>
 
-!!! info
+!!! info "Informació"
 
     Si encara no hem creat i descarregat un parell de claus, haurem de fer-ho abans de seleccionar-les.
 
 
-!!! danger
+!!! danger "Perill"
 
     Una volta generades les claus, i descarregades, haurem de tindre cura amb la custòdia d'aquestes, perquè seran necessàries per a connectar amb la instància configurada.&#x20;
 
@@ -108,7 +108,7 @@ Seleccionem els grups de seguretat a aplicar a la nova instància, que hem creat
 
 <figure><img src="../assets/image (142).png" alt=""><figcaption><p>Selecció dels grups de seguretat</p></figcaption></figure>
 
-!!! info
+!!! info "Informació"
 
     Recordem que els grups de seguretat actuen com a regles de filtrat de tràfic de xarxa, a la nostra infraestructura virtual.
 
@@ -121,14 +121,14 @@ En llançar la instància, tornarem al llistat d'instàncies en execució del pa
 
 <figure><img src="../assets/image (145).png" alt=""><figcaption><p>Detall de la instància desplegada.</p></figcaption></figure>
 
-!!! warning
+!!! warning "Atenció"
 
     Recordatori: per a connectar amb clau privada a les instancies Ubuntu Server a AWS, hem de fer servir l'usuari ubuntu, com al següent exemple:
 
     ssh -i /path/to/private-key ubuntu@ip-publica
 
 
-!!! danger
+!!! danger "Perill"
 
     Per a poder connectar, la clau privada ha de tindre aplicat permisos de soles lectura, i soles per a l'usuari:
 

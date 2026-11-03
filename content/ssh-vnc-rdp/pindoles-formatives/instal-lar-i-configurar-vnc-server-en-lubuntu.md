@@ -60,7 +60,7 @@ Log file is /home/profe/.vnc/profe:1.log
 
 ```
 
-!!! info
+!!! info "Informació"
 
     Si en algún moment volem canviar la contrasenya d'access, o crear un usuari amb permissos exclusius de visualització, podrem executar el següent comandament:
 
@@ -99,7 +99,7 @@ Log file is /home/profe/.vnc/profe:1.log
 
 Ara podrem connectar al servei d'escriptori remot, amb qualsevol client VNC, exposat al port 5901.
 
-!!! danger
+!!! danger "Perill"
 
     Cada volta que iniciem la màquina, haurem d'executar el comandament vncserver per que siga posible connectar remotament.
 

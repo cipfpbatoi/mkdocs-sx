@@ -315,7 +315,7 @@ profe@sx-srv-profe-dhcp:~$ sudo ufw status;
 
 * [ ] Prova del servei configurat
 
-!!! danger
+!!! danger "Perill"
 
     Per a poder provar el servei DNS configurat, haurem d'engegar un client, i configurar la seua tarjeta de xarxa, indicant que la IP del servei DNS siga la IP de la màquina que acabem de configurar.
 
@@ -367,7 +367,7 @@ Address: 192.168.0.250
 
 ```
 
-!!! warning
+!!! warning "Atenció"
 
     En el cas de que no funcioni, tracteu de reiniciar el servei bind9, i comproveu l'estat del mateix, per si mostra algún error, com puga ser el següent:
 

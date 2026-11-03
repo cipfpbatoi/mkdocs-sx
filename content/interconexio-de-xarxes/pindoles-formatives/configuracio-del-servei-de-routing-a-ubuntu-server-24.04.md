@@ -102,7 +102,7 @@ sudo ufw status;
 
 Comprovem que la màquina sx-srv-xxxx01 té connexió amb qualsevol servidor DNS d'internet i amb la porta d'enllaç de l'aula:
 
-!!! warning
+!!! warning "Atenció"
 
     A l'aula, els pings cap a internet (per exemple, a **8.8.8.8**) estan capats i és possible que no obtingueu resposta. Per això, sempre que feu un ping a 8.8.8.8, feu també un ping a la porta d'enllaç de l'aula, **172.16.211.1**. Si la porta d'enllaç respon, la connectivitat cap a l'exterior és correcta encara que el ping a 8.8.8.8 no responga.
 
@@ -148,7 +148,7 @@ profe@sx-cli-profe01:~$ networkctl status
 
 ```
 
-!!! warning
+!!! warning "Atenció"
 
     En cas de que aparega l'advertencia **"WARNING: systemd-networkd is not running, output will be incomplete."**, haurem de iniciar el servei **systemd-networkd** amb els següents commandaments:
 

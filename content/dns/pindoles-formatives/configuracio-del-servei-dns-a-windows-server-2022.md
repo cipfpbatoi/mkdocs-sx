@@ -95,7 +95,7 @@ Podem comprovar la configuració al panel de control del servei DNS:
 
 <figure><img src="../assets/image (61).png" alt=""><figcaption><p>Punters de IP a DNS configurades.</p></figcaption></figure>
 
-!!! danger
+!!! danger "Perill"
 
     Per a poder provar el servei DNS configurat, haurem d'engegar un client, i configurar la seua tarjeta de xarxa, indicant que la IP del servei DNS siga la IP de la màquina que acabem de configurar.&#x20;
 

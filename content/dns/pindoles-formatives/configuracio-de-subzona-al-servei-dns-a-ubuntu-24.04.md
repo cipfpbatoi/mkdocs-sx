@@ -197,7 +197,7 @@ Name:   impresora.zona1.midominio.aula
 Address: 192.168.0.251
 ```
 
-!!! danger
+!!! danger "Perill"
 
     Fins ara hem configurat el servidor del subdomini zona1.midominio.aula.
 
@@ -218,7 +218,7 @@ La màquina virtual d'aquest servidor té configurades dues interfície de xarxa
 
 <figure><img src="../assets/image (62) (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
 
-!!! info
+!!! info "Informació"
 
     Per a configurar routing, NAT i DHCP, podeu consultar els tutorials de les unitats anteriors.
 
@@ -419,7 +419,7 @@ Name:   impresora.zona1.midominio.aula
 Address: 192.168.0.251
 ```
 
-!!! danger
+!!! danger "Perill"
 
     Ara podem resoldre les DNS del domini i del subdomini, fent servir el servidor del domini com a servidor DNS dels clients. Proba-ho!!
 

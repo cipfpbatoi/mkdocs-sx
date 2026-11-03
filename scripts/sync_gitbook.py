@@ -48,6 +48,7 @@ MKDOCS_YML = REPO / "mkdocs.yml"
 MARKER = ".gitbook-space"
 
 HINT_STYLES = {"info": "info", "warning": "warning", "danger": "danger", "success": "success"}
+HINT_TITLES = {"info": "Informació", "warning": "Atenció", "danger": "Perill", "success": "Correcte", "note": "Nota"}
 
 # Els emojis dels títols de GitBook es substitueixen per icones de Material al menú.
 EMOJI_ICONS = {
@@ -154,7 +155,7 @@ def convert_hints(text: str) -> str:
             body.pop(0)
         while body and not body[-1].strip():
             body.pop()
-        out.append(f"{indent}!!! {kind}")
+        out.append(f'{indent}!!! {kind} "{HINT_TITLES.get(kind, kind.capitalize())}"')
         out.append("")
         for b in body:
             b = b[len(indent):] if b.startswith(indent) else b.lstrip()
