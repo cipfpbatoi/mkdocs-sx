@@ -15,7 +15,7 @@ icon: material/clipboard-check-outline
 ```mermaid
 flowchart TB
     subgraph HOST["💻 Equip amfitrió de l'aula"]
-        H["<b>Amfitrió</b><br/>terminal SSH · Remmina"]
+        H["<b>Amfitrió</b><br/>terminal SSH · navegador · Remmina"]
         subgraph VB["VirtualBox"]
             GL["<b>GLaDOS</b><br/>Linux Mint XFCE"]
             AL["<b>Alyx</b><br/>Linux Mint XFCE<br/>servidor VNC"]
@@ -32,7 +32,7 @@ flowchart TB
     AL ---|"xarxa interna 2"| GF
 
     GL -. "③ VNC" .-> AL
-    GL -. "① túnel SSH → Webmin" .-> GF
+    H -. "① túnel SSH → Webmin" .-> GF
     H -. "② SSH amb clau" .-> US
     H -. "④ RDP amb Remmina" .-> WS
     WS -. "⑤ SSH amb PuTTY (.ppk)" .-> US
@@ -40,7 +40,7 @@ flowchart TB
 
 | Màquina           | Sistema i rol                                                        |
 | ----------------- | -------------------------------------------------------------------- |
-| **Amfitrió**      | Equip físic de l’aula on s’executa VirtualBox. **Des d’ell es connecta a AWS** (SSH i RDP amb Remmina). |
+| **Amfitrió**      | Equip físic de l’aula on s’executa VirtualBox. **Des d’ell es fa el túnel SSH cap a Webmin de gordonfreeman i es connecta a AWS** (SSH i RDP amb Remmina). |
 | **gordonfreeman** | Ubuntu Server. Encaminador NAT (routing + masquerade) i servidor DHCP de les dues xarxes internes. Hi instal·larem Webmin. |
 | **GLaDOS**        | Linux Mint XFCE connectat a la **xarxa interna 1**. Client gràfic.   |
 | **Alyx**          | Linux Mint XFCE connectat a la **xarxa interna 2**. Client gràfic i servidor VNC. |
@@ -59,7 +59,7 @@ Abans de començar, completa una taula amb les **IP reals** de les teues màquin
 
 | Origen   | Destinació               | Protocol / port | Finalitat                           |
 | ------- | ------------------------- | --------------- | ----------------------------------- |
-| GLaDOS  | gordonfreeman             | SSH 22 → túnel 10000 | Administrar gordonfreeman amb Webmin |
+| Amfitrió | gordonfreeman            | SSH 22 → túnel 10000 | Administrar gordonfreeman amb Webmin |
 | GLaDOS  | Alyx                      | VNC 5900        | Escriptori remot Linux → Linux      |
 | Amfitrió | Ubuntu Server (AWS)      | SSH 22          | Administració i enduriment d’SSH    |
 | Amfitrió | Windows Server (AWS)     | RDP 3389        | Escriptori remot Linux → Windows    |
@@ -70,8 +70,8 @@ Abans de començar, completa una taula amb les **IP reals** de les teues màquin
 Repeteix a la teua infraestructura el que hem fet a classe amb la instància d’AWS, seguint l’activitat [AF.3.1.12 — Administració d’SSH amb Webmin a través d’un túnel SSH](../pindoles-formatives/af.3.1.12-administracio-dssh-amb-webmin-a-traves-dun-tunel-ssh.md).
 
 1. Instal·la **Webmin** a gordonfreeman i comprova que escolta al port 10000.
-2. Des de **GLaDOS** ja tens la clau pública autoritzada a gordonfreeman. Crea un **túnel SSH local** que redirigisca un port de GLaDOS cap al port 10000 de gordonfreeman.
-3. Obri Webmin des del navegador de GLaDOS **a través del túnel** i inicia sessió.
+2. Des de l’**equip amfitrió** ja tens la clau pública autoritzada a gordonfreeman. Crea un **túnel SSH local** que redirigisca un port de l’amfitrió cap al port 10000 de gordonfreeman.
+3. Obri Webmin des del navegador de l’amfitrió **a través del túnel** i inicia sessió.
 
 !!! info "Informació"
 
@@ -81,7 +81,7 @@ Repeteix a la teua infraestructura el que hem fet a classe amb la instància d�
 ### Evidències
 
 * **E02 — Webmin instal·lat:** a gordonfreeman, `systemctl status webmin` actiu i `sudo ss -tlnp | grep 10000`.
-* **E03 — Túnel i accés:** a GLaDOS, l’ordre `ssh -L ...` que has usat i el navegador amb Webmin obert a `https://localhost:<port>`, on es veja el nom de màquina gordonfreeman.
+* **E03 — Túnel i accés:** a l’amfitrió, l’ordre `ssh -L ...` que has usat i el navegador amb Webmin obert a `https://localhost:<port>`, on es veja el nom de màquina gordonfreeman.
 * **E04 — Usuari de Webmin:** amb quin usuari has entrat i **per què** eixe usuari pot administrar el sistema des de Webmin.
 
 ## Part 2 — Seguretat SSH a la instància Ubuntu d’AWS
