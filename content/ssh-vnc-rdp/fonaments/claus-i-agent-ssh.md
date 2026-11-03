@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 4. Autenticació amb claus i agent SSH
 
 ### Dos parells de claus amb funcions diferents

@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Normes de nomenclatura per a les màquines virtuals
 ---
 

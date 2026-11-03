@@ -1,3 +1,7 @@
+---
+icon: material/hammer-wrench
+---
+
 # 🛠️ AF.5.2.7 HTTPS - Certificats Auto-signats
 
 Aquesta part, també es troba en construcció, però a contuniació us deixe uns recursos molt potents:

@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Apache 2, instal·lat a Ubuntu Server 24.04, desplegat a AWS
 ---
 

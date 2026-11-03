@@ -49,6 +49,23 @@ MARKER = ".gitbook-space"
 
 HINT_STYLES = {"info": "info", "warning": "warning", "danger": "danger", "success": "success"}
 
+# Els emojis dels títols de GitBook es substitueixen per icones de Material al menú.
+EMOJI_ICONS = {
+    "⚒": "material/hammer-wrench",
+    "🛠": "material/hammer-wrench",
+    "📎": "material/paperclip",
+    "📝": "material/pencil-outline",
+    "💡": "material/lightbulb-on-outline",
+}
+# Icona per defecte segons el grup del SUMMARY.md (si el títol no porta emoji).
+GROUP_ICONS = {
+    "fonaments": "material/book-open-variant",
+    "qualificables": "material/clipboard-check-outline",
+    "pràctiques": "material/paperclip",
+}
+GROUP_TITLES = {"pindoles formatives": "Píndoles formatives"}
+LEADING_EMOJI = re.compile(r"^([^\w\s(\[\"'¿¡]+)\s*")
+
 
 # ---------------------------------------------------------------- source ----
 def extract_ref(ref: str, dest: Path) -> None:
@@ -68,22 +85,43 @@ def clean_title(title: str) -> str:
     return re.sub(r"\s+", " ", TAG_RE.sub("", title)).strip()
 
 
+def split_emoji(title: str) -> tuple[str, str | None]:
+    """'⚒️ Títol' -> ('Títol', 'material/hammer-wrench')."""
+    m = LEADING_EMOJI.match(title)
+    if not m:
+        return title, None
+    emoji = m.group(1).replace("\ufe0f", "").strip()
+    return title[m.end():].strip(), EMOJI_ICONS.get(emoji[:1])
+
+
+def nice_group(title: str) -> str:
+    title, _ = split_emoji(title)
+    if title.isupper():
+        title = title.capitalize()
+    return GROUP_TITLES.get(title.lower(), title)
+
+
 def parse_summary(text: str):
     """Torna una llista de grups [(títol|None, [node])]; node = {title, path, children}."""
     groups: list[tuple[str | None, list]] = [(None, [])]
-    stack: list[tuple[int, list]] = []
+    stack: list[tuple[int, list, str | None]] = []
     for line in text.splitlines():
         if m := HEADING_RE.match(line):
-            groups.append((clean_title(m["title"]), []))
+            groups.append((nice_group(clean_title(m["title"])), []))
             stack = []
             continue
         if m := LINK_RE.match(line):
             level = len(m["indent"].replace("\t", "  ")) // 2
-            node = {"title": clean_title(m["title"]), "path": m["path"].strip(), "children": []}
+            title, icon = split_emoji(clean_title(m["title"]))
+            group = (groups[-1][0] or "").lower()
+            if stack:  # fill: hereta la icona del pare si no en té
+                icon = icon or stack[-1][2]
+            icon = icon or GROUP_ICONS.get(group) or GROUP_ICONS.get(title.lower())
+            node = {"title": title, "icon": icon, "path": m["path"].strip(), "children": []}
             while stack and stack[-1][0] >= level:
                 stack.pop()
             (stack[-1][1] if stack else groups[-1][1]).append(node)
-            stack.append((level, node["children"]))
+            stack.append((level, node["children"], icon))
     return [(t, items) for t, items in groups if items]
 
 
@@ -152,6 +190,25 @@ def transform(text: str, page: Path, space_root: Path) -> str:
     return text
 
 
+def set_icon(text: str, icon: str | None) -> str:
+    """Afig `icon:` al front matter (Material el mostra al menú)."""
+    if not icon:
+        return text
+    if text.startswith("---\n"):
+        end = text.find("\n---", 3)
+        meta = text[4:end]
+        if re.search(r"^icon:", meta, flags=re.M):
+            return text
+        return f"---\nicon: {icon}\n{meta}{text[end:]}"
+    return f"---\nicon: {icon}\n---\n\n{text}"
+
+
+def iter_nodes(nodes):
+    for n in nodes:
+        yield n
+        yield from iter_nodes(n["children"])
+
+
 def is_hidden(md: Path) -> bool:
     text = md.read_text(encoding="utf-8")
     if not text.startswith("---"):
@@ -177,7 +234,8 @@ def nav_lines(nodes, base: str, depth: int, hidden: set[str]) -> list[str]:
         if rel in hidden:
             continue
         if n["children"]:
-            lines.append(f"{pad}- {q(n['title'])}:")
+            title = n["title"].capitalize() if n["title"].isupper() else n["title"]
+            lines.append(f"{pad}- {q(title)}:")
             lines.append(f"{pad}    - Presentació: {q(rel)}")
             lines += nav_lines(n["children"], base, depth + 2, hidden)
         else:
@@ -188,7 +246,7 @@ def nav_lines(nodes, base: str, depth: int, hidden: set[str]) -> list[str]:
 def write_nav(spaces, hidden: set[str]) -> None:
     lines = ["nav:", "  - Inici: README.md"]
     for title, path, groups in spaces:
-        lines.append(f"  - {q(title)}:")
+        lines.append(f"  - {q(title.replace(' - ', ' · '))}:")
         for gtitle, items in groups:
             if gtitle:
                 sub = nav_lines(items, path, 4, hidden)
@@ -212,7 +270,8 @@ def write_nav(spaces, hidden: set[str]) -> None:
 # ------------------------------------------------------------------ main ----
 def sync(src: Path) -> None:
     cfg = yaml.safe_load((src / "gitbook-docs.yaml").read_text(encoding="utf-8"))
-    entries = cfg["site"]["structure"]
+    # Ordre de les pestanyes: SA01…SA06 i després la resta (SAXX - AWS Academy).
+    entries = sorted(cfg["site"]["structure"], key=lambda e: e["title"])
 
     for d in CONTENT.iterdir():
         if d.is_dir() and (d / MARKER).exists():
@@ -239,10 +298,11 @@ def sync(src: Path) -> None:
                 if is_hidden(srcf):
                     hidden.add(posixpath.join(path, rel))
         for _, items in groups:
-            for rel in iter_paths(items):
-                f = dest / rel
+            for n in iter_nodes(items):
+                f = dest / n["path"]
                 if f.is_file():
-                    f.write_text(transform(f.read_text(encoding="utf-8"), f, dest), encoding="utf-8")
+                    text = transform(f.read_text(encoding="utf-8"), f, dest)
+                    f.write_text(set_icon(text, n["icon"]), encoding="utf-8")
         spaces.append((e["title"], path, groups))
         print(f"{e['title']}: {sum(1 for g in groups for _ in iter_paths(g[1]))} pàgines")
 

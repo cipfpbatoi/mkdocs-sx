@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: >-
   Autenticació d'usuari a AWS Academy i accés a la consola d'administració de
   serveis

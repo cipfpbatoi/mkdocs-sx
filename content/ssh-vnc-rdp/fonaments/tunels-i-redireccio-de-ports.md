@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 5. Túnels i redirecció de ports
 
 ### Què és un túnel SSH?

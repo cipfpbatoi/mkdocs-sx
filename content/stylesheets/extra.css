@@ -1,0 +1,221 @@
+/* ------------------------------------------------------------------ */
+/*  Serveis en Xarxa — estil propi sobre Material for MkDocs           */
+/* ------------------------------------------------------------------ */
+
+/* Paleta: verd blavós (xarxes) + accent ambre ---------------------- */
+:root,
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0b6e75;
+  --md-primary-fg-color--light: #12919a;
+  --md-primary-fg-color--dark: #07545a;
+  --md-accent-fg-color: #d97706;
+  --md-accent-fg-color--transparent: rgba(217, 119, 6, 0.1);
+  --sx-surface: #f4f8f8;
+  --sx-border: #d7e3e4;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0e7c84;
+  --md-primary-fg-color--light: #2bb3bc;
+  --md-primary-fg-color--dark: #085c62;
+  --md-accent-fg-color: #f59e0b;
+  --md-accent-fg-color--transparent: rgba(245, 158, 11, 0.12);
+  --md-typeset-a-color: #4fd1d9;
+  --md-default-bg-color: #12171c;
+  --sx-surface: #1a2128;
+  --sx-border: #2b363f;
+}
+
+/* Amplada: les captures de pantalla agraeixen més espai ------------- */
+.md-grid {
+  max-width: 1440px;
+}
+
+/* Capçalera i pestanyes -------------------------------------------- */
+.md-header__title {
+  font-weight: 700;
+}
+
+.md-tabs__link {
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.md-tabs__item--active .md-tabs__link {
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* Menú lateral ------------------------------------------------------ */
+/* Títols de grup (Píndoles formatives, Pràctiques...) */
+.md-nav--primary .md-nav__item--section > .md-nav__link {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--md-primary-fg-color);
+  margin-top: 1.1em;
+}
+
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav__item--section > .md-nav__link {
+  color: var(--md-primary-fg-color--light);
+}
+
+.md-nav__link {
+  line-height: 1.35;
+}
+
+/* Pàgina activa ressaltada */
+@media screen and (min-width: 76.25em) {
+  .md-nav--primary .md-nav__link--active {
+    background: var(--md-accent-fg-color--transparent);
+    border-radius: 0.3rem;
+    padding: 0.15rem 0.4rem;
+    margin-left: -0.4rem;
+    margin-right: -0.4rem;
+  }
+}
+
+.md-nav__link .md-icon svg,
+.md-nav__link > .md-icon {
+  opacity: 0.7;
+}
+
+/* Breadcrumbs */
+.md-path {
+  font-size: 0.68rem;
+}
+
+/* Tipografia del contingut ------------------------------------------ */
+.md-typeset h1 {
+  font-weight: 700;
+  color: var(--md-default-fg-color);
+  letter-spacing: -0.01em;
+}
+
+.md-typeset h2 {
+  font-weight: 650;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--sx-border);
+}
+
+.md-typeset h3 {
+  font-weight: 600;
+}
+
+/* Figures (captures de GitBook) ------------------------------------- */
+.md-typeset figure {
+  margin: 1.5em auto;
+  max-width: 100%;
+}
+
+.md-typeset figure img,
+.md-typeset p > img,
+.md-typeset .glightbox img {
+  border: 1px solid var(--sx-border);
+  border-radius: 0.45rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  max-width: 100%;
+  height: auto;
+}
+
+.md-typeset figcaption {
+  max-width: 48rem;
+  margin-top: 0.6em;
+  font-size: 0.7rem;
+  font-style: normal;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-typeset figcaption:empty,
+.md-typeset figcaption:has(> p:empty) {
+  display: none;
+}
+
+.md-typeset figcaption p {
+  margin: 0;
+}
+
+/* Admonitions i codi ------------------------------------------------ */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 0.45rem;
+  border-width: 0 0 0 0.25rem;
+  box-shadow: none;
+  background: var(--sx-surface);
+  font-size: 0.75rem;
+}
+
+.md-typeset pre > code {
+  border-radius: 0.45rem;
+}
+
+.md-typeset code {
+  border-radius: 0.25rem;
+}
+
+/* Taules ------------------------------------------------------------ */
+.md-typeset table:not([class]) {
+  border-radius: 0.45rem;
+  border: 1px solid var(--sx-border);
+  box-shadow: none;
+}
+
+.md-typeset table:not([class]) th {
+  background: var(--sx-surface);
+}
+
+/* Portada ----------------------------------------------------------- */
+.sx-hero {
+  padding: 0 0 0.5rem;
+}
+
+.sx-hero h1 {
+  font-size: 2.2rem;
+  margin: 0 0 0.3em;
+}
+
+.sx-hero p {
+  font-size: 0.95rem;
+  color: var(--md-default-fg-color--light);
+  max-width: 42rem;
+}
+
+.md-typeset .grid.cards > ul > li {
+  border-radius: 0.6rem;
+  border: 1px solid var(--sx-border);
+  transition: border-color 150ms, box-shadow 150ms, transform 150ms;
+}
+
+.md-typeset .grid.cards > ul > li:hover {
+  border-color: var(--md-primary-fg-color);
+  box-shadow: 0 6px 18px rgba(11, 110, 117, 0.12);
+  transform: translateY(-2px);
+}
+
+.md-typeset .grid.cards .sx-code {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--md-primary-fg-color);
+  background: var(--md-accent-fg-color--transparent);
+  padding: 0.05rem 0.45rem;
+  border-radius: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .grid.cards .sx-code {
+  color: var(--md-primary-fg-color--light);
+}
+
+.md-typeset .grid.cards .lg {
+  color: var(--md-primary-fg-color);
+}
+
+/* Impressió / PDF: sense ombres ni vores decoratives ---------------- */
+@media print {
+  .md-typeset figure img {
+    box-shadow: none;
+  }
+}

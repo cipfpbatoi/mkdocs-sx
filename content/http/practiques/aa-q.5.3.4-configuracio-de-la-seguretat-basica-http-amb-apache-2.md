@@ -1,3 +1,7 @@
+---
+icon: material/paperclip
+---
+
 # 📎 AA-Q.5.3.4 – Configuració de la seguretat bàsica HTTP amb Apache 2
 
 #### **Objectiu de l’activitat**

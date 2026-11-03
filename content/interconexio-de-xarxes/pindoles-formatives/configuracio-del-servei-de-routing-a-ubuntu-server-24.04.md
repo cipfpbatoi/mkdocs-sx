@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració d'una porta d'enllaç amb Ubuntu server 24.04 i el programari ufw
 ---
 

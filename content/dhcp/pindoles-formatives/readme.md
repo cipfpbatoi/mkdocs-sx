@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració del servei DHCP a Ubuntu Server 24.04
 ---
 

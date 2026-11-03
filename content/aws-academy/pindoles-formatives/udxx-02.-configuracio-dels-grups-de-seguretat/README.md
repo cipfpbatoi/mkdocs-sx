@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració dels grups de seguretat
 ---
 

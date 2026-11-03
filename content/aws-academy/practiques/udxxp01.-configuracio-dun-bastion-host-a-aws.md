@@ -1,4 +1,5 @@
 ---
+icon: material/paperclip
 description: Configuració d'un host bastió a AWS
 ---
 

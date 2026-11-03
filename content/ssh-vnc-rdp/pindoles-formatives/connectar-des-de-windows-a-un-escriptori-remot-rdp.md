@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Connectar des de Windows a un escriptori remot RDP
 ---
 

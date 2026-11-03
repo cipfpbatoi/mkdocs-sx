@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració de les targetes de xarxa a Ubuntu 24.04 i LUbuntu 24.04
 ---
 

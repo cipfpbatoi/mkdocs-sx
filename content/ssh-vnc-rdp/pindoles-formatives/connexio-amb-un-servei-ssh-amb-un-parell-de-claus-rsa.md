@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Connexió amb un servei SSH amb un parell de claus RSA
 ---
 

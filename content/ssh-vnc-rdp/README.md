@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # FONAMENTS
 
 L’administració remota permet gestionar un equip a través de la xarxa sense estar físicament davant d’ell: executar ordres, revisar registres, modificar configuracions o treballar amb una interfície gràfica.

@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 3. El client SSH
 
 ### Connexions bàsiques

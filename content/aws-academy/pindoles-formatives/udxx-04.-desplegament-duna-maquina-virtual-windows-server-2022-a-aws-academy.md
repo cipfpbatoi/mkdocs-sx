@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Desplegament d'una màquina virtual Windows Server 2022 a AWS Academy
 ---
 

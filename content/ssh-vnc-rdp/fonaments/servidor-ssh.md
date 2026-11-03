@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 2. El servidor SSH
 
 #### Fitxers i responsabilitats

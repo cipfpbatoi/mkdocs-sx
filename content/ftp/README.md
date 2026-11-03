@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: VSFTPD, instal·lat a Ubuntu Server 24.04, desplegat a AWS
 ---
 

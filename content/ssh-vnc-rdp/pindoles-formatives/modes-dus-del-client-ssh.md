@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Modes d'ús del client SSH
 ---
 

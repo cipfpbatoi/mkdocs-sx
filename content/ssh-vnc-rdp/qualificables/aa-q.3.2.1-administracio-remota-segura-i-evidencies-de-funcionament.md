@@ -1,4 +1,5 @@
 ---
+icon: material/clipboard-check-outline
 hidden: true
 ---
 

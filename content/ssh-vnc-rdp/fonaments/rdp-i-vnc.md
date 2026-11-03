@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 7. Escriptori remot: RDP i VNC
 
 ### Accés a una interfície gràfica

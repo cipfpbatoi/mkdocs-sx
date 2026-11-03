@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Instal·lació del servei SSH a Ubuntu Server 24.04
 ---
 

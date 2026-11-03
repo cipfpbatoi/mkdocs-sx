@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració del grup de seguretat 'rdp-extern'.
 ---
 

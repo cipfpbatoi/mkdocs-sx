@@ -1,4 +1,5 @@
 ---
+icon: material/lightbulb-on-outline
 description: Teoria amb pràctica del vist a classe
 ---
 

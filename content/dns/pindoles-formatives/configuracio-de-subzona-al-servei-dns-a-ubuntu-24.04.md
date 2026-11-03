@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració de subzona al servei DNS a Ubuntu Server 24.04
 ---
 

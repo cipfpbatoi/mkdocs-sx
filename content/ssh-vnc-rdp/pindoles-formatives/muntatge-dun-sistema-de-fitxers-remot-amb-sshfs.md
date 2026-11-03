@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Muntatge d'un sistema de fitxers remot amb sshfs
 ---
 

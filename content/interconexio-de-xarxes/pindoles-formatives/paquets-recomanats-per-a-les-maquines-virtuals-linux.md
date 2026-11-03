@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: >-
   Instal·lació de paquets mínims recomanats per a fer les pràctiques en les
   màquines virtuals amb sistema operatiu Ubuntu i LUbuntu.

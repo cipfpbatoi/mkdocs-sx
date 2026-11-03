@@ -1,3 +1,7 @@
+---
+icon: material/paperclip
+---
+
 # 📎 AA-Q.5.3.5 – Configuració de HTTPS amb Apache 2 utilitzant certificats auto-signats
 
 En l’activitat anterior **AA-Q.5.3.4 – Configuració de la seguretat bàsica HTTP amb Apache 2**, s’han desplegat i configurat diversos **VirtualHost** funcionant sobre **HTTP**, aplicant criteris bàsics de seguretat i organització del servei.

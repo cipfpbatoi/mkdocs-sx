@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Desplegament d'una màquina virtual Ubuntu Server 24.04 a AWS Academy
 ---
 

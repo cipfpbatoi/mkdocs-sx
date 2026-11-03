@@ -12,29 +12,29 @@ use_directory_urls: false
 # BEGIN nav (generat per scripts/sync_gitbook.py, no editar a mà)
 nav:
   - Inici: README.md
-  - "SA01 - Interconnexió de Xarxes":
-      - "Pindoles formatives":
-        - "⚒️ Configuració inicial de les màquines virtuals :)": "interconexio-de-xarxes/README.md"
-        - "⚒️ Paquets recomanats per a les màquines virtuals Linux": "interconexio-de-xarxes/pindoles-formatives/paquets-recomanats-per-a-les-maquines-virtuals-linux.md"
-        - "⚒️ Configuració de xarxa a Ubuntu 24.04": "interconexio-de-xarxes/pindoles-formatives/configuracio-de-xarxa-a-ubuntu-24.04.md"
-        - "⚒️ Configuració del servei de routing a Ubuntu Server 24.04": "interconexio-de-xarxes/pindoles-formatives/configuracio-del-servei-de-routing-a-ubuntu-server-24.04.md"
-        - "📝 AF 1.1.3 - Publicar un servidor web d'una xarxa interna mitjançant NAT": "interconexio-de-xarxes/pindoles-formatives/af-1.1.3-publicar-un-servidor-web-duna-xarxa-interna-mitjancant-nat.md"
-        - "⚒️ Configuració del servei de routing a Windows Server 2022": "interconexio-de-xarxes/pindoles-formatives/configuracio-del-servei-de-routing-a-windows-server-2022.md"
+  - "SA01 · Interconnexió de Xarxes":
+      - "Píndoles formatives":
+        - "Configuració inicial de les màquines virtuals :)": "interconexio-de-xarxes/README.md"
+        - "Paquets recomanats per a les màquines virtuals Linux": "interconexio-de-xarxes/pindoles-formatives/paquets-recomanats-per-a-les-maquines-virtuals-linux.md"
+        - "Configuració de xarxa a Ubuntu 24.04": "interconexio-de-xarxes/pindoles-formatives/configuracio-de-xarxa-a-ubuntu-24.04.md"
+        - "Configuració del servei de routing a Ubuntu Server 24.04": "interconexio-de-xarxes/pindoles-formatives/configuracio-del-servei-de-routing-a-ubuntu-server-24.04.md"
+        - "AF 1.1.3 - Publicar un servidor web d'una xarxa interna mitjançant NAT": "interconexio-de-xarxes/pindoles-formatives/af-1.1.3-publicar-un-servidor-web-duna-xarxa-interna-mitjancant-nat.md"
+        - "Configuració del servei de routing a Windows Server 2022": "interconexio-de-xarxes/pindoles-formatives/configuracio-del-servei-de-routing-a-windows-server-2022.md"
       - "Pràctiques":
-        - "📎 AP-Q.1.1.1. - Configuració d'una xarxa local amb netplan i routing": "interconexio-de-xarxes/practiques/ud00p01.-configuracio-duna-xarxa-local-amb-netplan-i-routing.md"
-        - "📎 AP-Q.1.1.1.R. - Configuració d'una xarxa local amb netplan i routing": "interconexio-de-xarxes/practiques/ud00p01r.-configuracio-duna-xarxa-local-amb-netplan-i-routing.md"
-  - "SA02 - Configuració DHCP":
-      - "📓 Continguts":
-        - "💡 Introducció a DHCP": "dhcp/README.md"
-      - "Pindoles formatives":
-        - "⚒️ Configuració del servei DHCP a Ubuntu 24.04": "dhcp/pindoles-formatives/readme.md"
-        - "⚒️ Configuració del servei DHCP a Windows Server 2022": "dhcp/pindoles-formatives/configuracio-del-servei-dhcp-a-windows-server-2022.md"
+        - "AP-Q.1.1.1. - Configuració d'una xarxa local amb netplan i routing": "interconexio-de-xarxes/practiques/ud00p01.-configuracio-duna-xarxa-local-amb-netplan-i-routing.md"
+        - "AP-Q.1.1.1.R. - Configuració d'una xarxa local amb netplan i routing": "interconexio-de-xarxes/practiques/ud00p01r.-configuracio-duna-xarxa-local-amb-netplan-i-routing.md"
+  - "SA02 · Configuració DHCP":
+      - "Continguts":
+        - "Introducció a DHCP": "dhcp/README.md"
+      - "Píndoles formatives":
+        - "Configuració del servei DHCP a Ubuntu 24.04": "dhcp/pindoles-formatives/readme.md"
+        - "Configuració del servei DHCP a Windows Server 2022": "dhcp/pindoles-formatives/configuracio-del-servei-dhcp-a-windows-server-2022.md"
       - "Pràctiques":
-        - "📎 AA-Q.2.3.1. - Configuració d'una xarxa local amb DHCP Linux": "dhcp/practiques/ud01p01.-configuracio-duna-xarxa-local-amb-dhcp-linux.md"
-        - "📎 AA-Q.2.3.2. - Configuració d'una xarxa local amb DHCP Windows": "dhcp/practiques/ud01p02.-configuracio-duna-xarxa-local-amb-dhcp-windows.md"
-        - "📎 AA-Q.2.3.3. - Configuració de dues xarxes local amb DHCP Linux": "dhcp/practiques/ud01p03.-configuracio-de-dues-xarxes-local-amb-dhcp-linux.md"
-  - "SA03 - Administració Remota":
-      - "FONAMENTS":
+        - "AA-Q.2.3.1. - Configuració d'una xarxa local amb DHCP Linux": "dhcp/practiques/ud01p01.-configuracio-duna-xarxa-local-amb-dhcp-linux.md"
+        - "AA-Q.2.3.2. - Configuració d'una xarxa local amb DHCP Windows": "dhcp/practiques/ud01p02.-configuracio-duna-xarxa-local-amb-dhcp-windows.md"
+        - "AA-Q.2.3.3. - Configuració de dues xarxes local amb DHCP Linux": "dhcp/practiques/ud01p03.-configuracio-de-dues-xarxes-local-amb-dhcp-linux.md"
+  - "SA03 · Administració Remota":
+      - "Fonaments":
           - Presentació: "ssh-vnc-rdp/README.md"
           - "1. Accés remot i funcionament de SSH": "ssh-vnc-rdp/fonaments/acces-remot-i-ssh.md"
           - "2. El servidor SSH": "ssh-vnc-rdp/fonaments/servidor-ssh.md"
@@ -44,80 +44,80 @@ nav:
           - "6. SSH en AWS i aplicacions gràfiques X11": "ssh-vnc-rdp/fonaments/aws-i-x11.md"
           - "7. Escriptori remot: RDP i VNC": "ssh-vnc-rdp/fonaments/rdp-i-vnc.md"
       - "Activitats formatives":
-        - "⚒️ AF.3.1.1 — Instal·lació i prova del servei SSH a Ubuntu 24.04": "ssh-vnc-rdp/pindoles-formatives/readme.md"
-        - "⚒️ AF.3.1.2 — Configuració del servei SSH a Ubuntu Server 24.04": "ssh-vnc-rdp/pindoles-formatives/configuracio-del-servei-ssh-a-ubuntu-server-24.04.md"
-        - "⚒️ AF.3.1.3 — Modes d'ús del client SSH": "ssh-vnc-rdp/pindoles-formatives/modes-dus-del-client-ssh.md"
-        - "⚒️ AF.3.1.4 — Connexió SSH amb un parell de claus RSA": "ssh-vnc-rdp/pindoles-formatives/connexio-amb-un-servei-ssh-amb-un-parell-de-claus-rsa.md"
-        - "⚒️ AF.3.1.5 — Muntatge d'un sistema de fitxers remot amb sshfs": "ssh-vnc-rdp/pindoles-formatives/muntatge-dun-sistema-de-fitxers-remot-amb-sshfs.md"
-        - "⚒️ AF.3.1.6 — Instal·lar i configurar VNC Server en LUbuntu": "ssh-vnc-rdp/pindoles-formatives/instal-lar-i-configurar-vnc-server-en-lubuntu.md"
-        - "⚒️ AF.3.1.7 — Connectar des de Windows a un escriptori remot VNC": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-windows-a-un-escriptori-remot-vnc.md"
-        - "⚒️ AF.3.1.8 — Connectar des de Linux a un escriptori remot VNC": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-linux-a-un-escriptori-remot-vnc.md"
-        - "⚒️ AF.3.1.9 — Instal·lar i configurar escriptori remot en Windows 10": "ssh-vnc-rdp/pindoles-formatives/instal-lar-i-configurar-escriptori-remot-en-windows-10.md"
-        - "⚒️ AF.3.1.10 — Connectar des de Windows a un escriptori remot RDP": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-windows-a-un-escriptori-remot-rdp.md"
-        - "⚒️ AF.3.1.11 — Connectar des de Linux a un escriptori remot RDP": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-linux-a-un-escriptori-remot-rdp.md"
+        - "AF.3.1.1 — Instal·lació i prova del servei SSH a Ubuntu 24.04": "ssh-vnc-rdp/pindoles-formatives/readme.md"
+        - "AF.3.1.2 — Configuració del servei SSH a Ubuntu Server 24.04": "ssh-vnc-rdp/pindoles-formatives/configuracio-del-servei-ssh-a-ubuntu-server-24.04.md"
+        - "AF.3.1.3 — Modes d'ús del client SSH": "ssh-vnc-rdp/pindoles-formatives/modes-dus-del-client-ssh.md"
+        - "AF.3.1.4 — Connexió SSH amb un parell de claus RSA": "ssh-vnc-rdp/pindoles-formatives/connexio-amb-un-servei-ssh-amb-un-parell-de-claus-rsa.md"
+        - "AF.3.1.5 — Muntatge d'un sistema de fitxers remot amb sshfs": "ssh-vnc-rdp/pindoles-formatives/muntatge-dun-sistema-de-fitxers-remot-amb-sshfs.md"
+        - "AF.3.1.6 — Instal·lar i configurar VNC Server en LUbuntu": "ssh-vnc-rdp/pindoles-formatives/instal-lar-i-configurar-vnc-server-en-lubuntu.md"
+        - "AF.3.1.7 — Connectar des de Windows a un escriptori remot VNC": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-windows-a-un-escriptori-remot-vnc.md"
+        - "AF.3.1.8 — Connectar des de Linux a un escriptori remot VNC": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-linux-a-un-escriptori-remot-vnc.md"
+        - "AF.3.1.9 — Instal·lar i configurar escriptori remot en Windows 10": "ssh-vnc-rdp/pindoles-formatives/instal-lar-i-configurar-escriptori-remot-en-windows-10.md"
+        - "AF.3.1.10 — Connectar des de Windows a un escriptori remot RDP": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-windows-a-un-escriptori-remot-rdp.md"
+        - "AF.3.1.11 — Connectar des de Linux a un escriptori remot RDP": "ssh-vnc-rdp/pindoles-formatives/connectar-des-de-linux-a-un-escriptori-remot-rdp.md"
       - "Pràctiques":
-        - "📎 AF.3.2.1 — Configuració i ús d'un servidor SSH Linux": "ssh-vnc-rdp/practiques/ud03p01.-configuracio-i-us-dun-servidor-ssh-linux.md"
-        - "📎 AF.3.2.2 — Configuració i ús d'un servei d'escriptori remot amb VNC": "ssh-vnc-rdp/practiques/ud03p02.-configuracio-i-us-dun-servei-descriptori-remot-amb-vnc.md"
-  - "SAXX - AWS Academy":
-      - "Pindoles formatives":
-        - "⚒️ UDXX-01.- Autenticació d'usuari a AWS Academy i accés a la consola d'administració de serveis": "aws-academy/README.md"
-        - "⚒️ UDXX-02.- Configuració dels grups de seguretat":
-            - Presentació: "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/README.md"
-            - "⚒️ UDXX-02-1.- Configuració del grup de seguretat 'internet'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-1.-configuracio-del-grup-de-seguretat-internet..md"
-            - "⚒️ UDXX-02-2.- Configuració del grup de seguretat 'ssh-extern'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-2.-configuracio-del-grup-de-seguretat-ssh-extern..md"
-            - "⚒️ UDXX-02-3.- Configuració del grup de seguretat 'rdp-extern'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-3.-configuracio-del-grup-de-seguretat-rdp-extern..md"
-            - "⚒️ UDXX-02-4.- Configuració del grup de seguretat 'http-https.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-4.-configuracio-del-grup-de-seguretat-http-https..md"
-            - "⚒️ UDXX-02-5.- Configuració del grup de seguretat 'ftp-control'": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-5.-configuracio-del-grup-de-seguretat-ftp-control.md"
-            - "⚒️ UDXX-02-6.- Configuració del grup de seguretat 'ftp-passiu'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-6.-configuracio-del-grup-de-seguretat-ftp-passiu..md"
-        - "⚒️ UDXX-03.- Desplegament d'una màquina virtual Ubuntu Server 24.04 a AWS Academy": "aws-academy/pindoles-formatives/udxx-03.-desplegament-duna-maquina-virtual-ubuntu-server-24.04-a-aws-academy.md"
-        - "⚒️ UDXX-04.- Desplegament d'una màquina virtual Windows Server 2022 a AWS Academy": "aws-academy/pindoles-formatives/udxx-04.-desplegament-duna-maquina-virtual-windows-server-2022-a-aws-academy.md"
+        - "AF.3.2.1 — Configuració i ús d'un servidor SSH Linux": "ssh-vnc-rdp/practiques/ud03p01.-configuracio-i-us-dun-servidor-ssh-linux.md"
+        - "AF.3.2.2 — Configuració i ús d'un servei d'escriptori remot amb VNC": "ssh-vnc-rdp/practiques/ud03p02.-configuracio-i-us-dun-servei-descriptori-remot-amb-vnc.md"
+  - "SA04 · DNS":
+      - "Píndoles formatives":
+        - "Configuració del servei DNS a Ubuntu 24.04": "dns/README.md"
+        - "Configuració del servei DNS a Windows Server 2022": "dns/pindoles-formatives/configuracio-del-servei-dns-a-windows-server-2022.md"
+        - "Configuració de subzona al servei DNS a Ubuntu 24.04": "dns/pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md"
       - "Pràctiques":
-        - "📎 UDXXP01.- Configuració d'un bastion host a AWS": "aws-academy/practiques/udxxp01.-configuracio-dun-bastion-host-a-aws.md"
-  - "SA04 - DNS":
-      - "Pindoles formatives":
-        - "⚒️ Configuració del servei DNS a Ubuntu 24.04": "dns/README.md"
-        - "⚒️ Configuració del servei DNS a Windows Server 2022": "dns/pindoles-formatives/configuracio-del-servei-dns-a-windows-server-2022.md"
-        - "⚒️ Configuració de subzona al servei DNS a Ubuntu 24.04": "dns/pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md"
-      - "Pràctiques":
-        - "📎 AA-Q.3.3.2 - Configuració d'un servidor DNS Linux": "dns/practiques/ud02p01.-configuracio-dun-servidor-dns-linux.md"
-        - "📎 AA-Q.3.3.3 - Configuració d'un servidor DNS Windows": "dns/practiques/ud02p02.-configuracio-dun-servidor-dns-windows.md"
-        - "📎 AA-Q.3.3.4 - Configuració d'un servidor DNS de subzona amb Linux": "dns/practiques/ud02p03.-configuracio-dun-servidor-dns-de-subzona-amb-linux.md"
-        - "📎 AA-Q.3.3.6 - Servidor Web de Subzona a AWS": "dns/practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md"
-  - "SA05 - HTTP":
-      - "Pindoles formatives":
-        - "⚒️ AF.5.2.x. Apache 2, instal·lat a Ubuntu Server 24.04, desplegat a AWS":
+        - "AA-Q.3.3.2 - Configuració d'un servidor DNS Linux": "dns/practiques/ud02p01.-configuracio-dun-servidor-dns-linux.md"
+        - "AA-Q.3.3.3 - Configuració d'un servidor DNS Windows": "dns/practiques/ud02p02.-configuracio-dun-servidor-dns-windows.md"
+        - "AA-Q.3.3.4 - Configuració d'un servidor DNS de subzona amb Linux": "dns/practiques/ud02p03.-configuracio-dun-servidor-dns-de-subzona-amb-linux.md"
+        - "AA-Q.3.3.6 - Servidor Web de Subzona a AWS": "dns/practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md"
+  - "SA05 · HTTP":
+      - "Píndoles formatives":
+        - "AF.5.2.x. Apache 2, instal·lat a Ubuntu Server 24.04, desplegat a AWS":
             - Presentació: "http/README.md"
-            - "⚒️ AF.5.2.1. Instal·lació del servei.": "http/pindoles-formatives/readme/ud04.01.01.-instal-lacio-del-servei..md"
-            - "⚒️ AF.5.2.2. Fitxers de configuració.": "http/pindoles-formatives/readme/ud04.01.02.-fitxers-de-configuracio..md"
-            - "⚒️ AF.5.2.3. VirtualHost per defecte: 000-default.conf": "http/pindoles-formatives/readme/ud04.01.03.-virtualhost-per-defecte-000-default.conf.md"
-            - "⚒️ AF.5.2.4. Directoris virtuals.": "http/pindoles-formatives/readme/ud04.01.04.-directoris-virtuals..md"
-            - "⚒️ AF.5.2.5. Hosts virtuals.": "http/pindoles-formatives/readme/ud04.01.05.-hosts-virtuals..md"
-            - "⚒️ AF.5.2.6. Control d'accés, autenticació i autorització.": "http/pindoles-formatives/readme/ud04.01.06.-control-dacces-autenticacio-i-autoritzacio..md"
-            - "🛠️ AF.5.2.7 HTTPS - Certificats Auto-signats": "http/pindoles-formatives/readme/af.5.2.7-https-certificats-auto-signats.md"
-        - "⚒️ AF.5.2.x. IIS, instal·lat a Windows server 2022, desplegat a AWS":
+            - "AF.5.2.1. Instal·lació del servei.": "http/pindoles-formatives/readme/ud04.01.01.-instal-lacio-del-servei..md"
+            - "AF.5.2.2. Fitxers de configuració.": "http/pindoles-formatives/readme/ud04.01.02.-fitxers-de-configuracio..md"
+            - "AF.5.2.3. VirtualHost per defecte: 000-default.conf": "http/pindoles-formatives/readme/ud04.01.03.-virtualhost-per-defecte-000-default.conf.md"
+            - "AF.5.2.4. Directoris virtuals.": "http/pindoles-formatives/readme/ud04.01.04.-directoris-virtuals..md"
+            - "AF.5.2.5. Hosts virtuals.": "http/pindoles-formatives/readme/ud04.01.05.-hosts-virtuals..md"
+            - "AF.5.2.6. Control d'accés, autenticació i autorització.": "http/pindoles-formatives/readme/ud04.01.06.-control-dacces-autenticacio-i-autoritzacio..md"
+            - "AF.5.2.7 HTTPS - Certificats Auto-signats": "http/pindoles-formatives/readme/af.5.2.7-https-certificats-auto-signats.md"
+        - "AF.5.2.x. IIS, instal·lat a Windows server 2022, desplegat a AWS":
             - Presentació: "http/pindoles-formatives/ud04.02.-iis-instal-lat-a-windows-server-2022-desplegat-a-aws/README.md"
-            - "⚒️ AF.5.2.7. Instal·lació del servei IIS.": "http/pindoles-formatives/ud04.02.-iis-instal-lat-a-windows-server-2022-desplegat-a-aws/ud04.02.01.-instal-lacio-del-servei-iis..md"
-            - "⚒️ AF.5.2.8. Hosts virtuals.": "http/pindoles-formatives/ud04.02.-iis-instal-lat-a-windows-server-2022-desplegat-a-aws/ud04.02.02.-hosts-virtuals..md"
+            - "AF.5.2.7. Instal·lació del servei IIS.": "http/pindoles-formatives/ud04.02.-iis-instal-lat-a-windows-server-2022-desplegat-a-aws/ud04.02.01.-instal-lacio-del-servei-iis..md"
+            - "AF.5.2.8. Hosts virtuals.": "http/pindoles-formatives/ud04.02.-iis-instal-lat-a-windows-server-2022-desplegat-a-aws/ud04.02.02.-hosts-virtuals..md"
       - "Pràctiques":
-        - "📎 AA-Q.5.3.2 - Configuració d'un servidor HTTP amb Apache 2": "http/practiques/ud04p01.-configuracio-dun-servidor-http-amb-apache-2.md"
-        - "📎 AA-Q.5.3.3 - Configuració d'un servidor HTTP amb IIS.": "http/practiques/ud04p02.-configuracio-dun-servidor-http-amb-iis..md"
-        - "📎 AA-Q.5.3.4 – Configuració de la seguretat bàsica HTTP amb Apache 2": "http/practiques/aa-q.5.3.4-configuracio-de-la-seguretat-basica-http-amb-apache-2.md"
-        - "📎 AA-Q.5.3.5 – Configuració de HTTPS amb Apache 2 utilitzant certificats auto-signats": "http/practiques/aa-q.5.3.5-configuracio-de-https-amb-apache-2-utilitzant-certificats-auto-signats.md"
-  - "SA06 - FTP":
-      - "Pindoles formatives":
-        - "⚒️ UD05.01.- vsftpd, instal·lat a Ubuntu Server 24.04, desplegat a AWS":
+        - "AA-Q.5.3.2 - Configuració d'un servidor HTTP amb Apache 2": "http/practiques/ud04p01.-configuracio-dun-servidor-http-amb-apache-2.md"
+        - "AA-Q.5.3.3 - Configuració d'un servidor HTTP amb IIS.": "http/practiques/ud04p02.-configuracio-dun-servidor-http-amb-iis..md"
+        - "AA-Q.5.3.4 – Configuració de la seguretat bàsica HTTP amb Apache 2": "http/practiques/aa-q.5.3.4-configuracio-de-la-seguretat-basica-http-amb-apache-2.md"
+        - "AA-Q.5.3.5 – Configuració de HTTPS amb Apache 2 utilitzant certificats auto-signats": "http/practiques/aa-q.5.3.5-configuracio-de-https-amb-apache-2-utilitzant-certificats-auto-signats.md"
+  - "SA06 · FTP":
+      - "Píndoles formatives":
+        - "UD05.01.- vsftpd, instal·lat a Ubuntu Server 24.04, desplegat a AWS":
             - Presentació: "ftp/README.md"
-            - "⚒️ UD05.01.01.- Instal·lació del servei.": "ftp/pindoles-formatives/readme/ud05.01.01.-instal-lacio-del-servei..md"
-            - "⚒️ UD05.01.02.- Configuració d'accés anònim.": "ftp/pindoles-formatives/readme/ud05.01.02.-configuracio-dacces-anonim..md"
-            - "⚒️ UD05.01.03.- Configuració d'accés amb usuari del s.o.": "ftp/pindoles-formatives/readme/ud05.01.03.-configuracio-dacces-amb-usuari-del-s.o..md"
-        - "⚒️ UD05.02.- servei FTP, instal·lat a Windows Server 2023, desplegat a AWS":
+            - "UD05.01.01.- Instal·lació del servei.": "ftp/pindoles-formatives/readme/ud05.01.01.-instal-lacio-del-servei..md"
+            - "UD05.01.02.- Configuració d'accés anònim.": "ftp/pindoles-formatives/readme/ud05.01.02.-configuracio-dacces-anonim..md"
+            - "UD05.01.03.- Configuració d'accés amb usuari del s.o.": "ftp/pindoles-formatives/readme/ud05.01.03.-configuracio-dacces-amb-usuari-del-s.o..md"
+        - "UD05.02.- servei FTP, instal·lat a Windows Server 2023, desplegat a AWS":
             - Presentació: "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/README.md"
-            - "⚒️ UD05.02.01.- Instal·lació del servei.": "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/ud05.02.01.-instal-lacio-del-servei..md"
-            - "⚒️ UD05.02.02.- Configuració d'accés anònim.": "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/ud05.02.02.-configuracio-dacces-anonim..md"
-            - "⚒️ UD05.02.03.- Configuració d'accés nominal.": "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/ud05.02.03.-configuracio-dacces-nominal..md"
+            - "UD05.02.01.- Instal·lació del servei.": "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/ud05.02.01.-instal-lacio-del-servei..md"
+            - "UD05.02.02.- Configuració d'accés anònim.": "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/ud05.02.02.-configuracio-dacces-anonim..md"
+            - "UD05.02.03.- Configuració d'accés nominal.": "ftp/pindoles-formatives/ud05.02.-servei-ftp-instal-lat-a-windows-server-2023-desplegat-a-aws/ud05.02.03.-configuracio-dacces-nominal..md"
       - "Pràctiques":
-        - "📎 UD05P01.- Configuració d'un servidor FTP amb VSFTPD": "ftp/practiques/ud05p01.-configuracio-dun-servidor-ftp-amb-vsftpd.md"
-        - "📎 UD05P02.- Configuració d'un servidor FTP amb Windows Server 2022": "ftp/practiques/ud05p02.-configuracio-dun-servidor-ftp-amb-windows-server-2022.md"
+        - "UD05P01.- Configuració d'un servidor FTP amb VSFTPD": "ftp/practiques/ud05p01.-configuracio-dun-servidor-ftp-amb-vsftpd.md"
+        - "UD05P02.- Configuració d'un servidor FTP amb Windows Server 2022": "ftp/practiques/ud05p02.-configuracio-dun-servidor-ftp-amb-windows-server-2022.md"
+  - "SAXX · AWS Academy":
+      - "Píndoles formatives":
+        - "UDXX-01.- Autenticació d'usuari a AWS Academy i accés a la consola d'administració de serveis": "aws-academy/README.md"
+        - "UDXX-02.- Configuració dels grups de seguretat":
+            - Presentació: "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/README.md"
+            - "UDXX-02-1.- Configuració del grup de seguretat 'internet'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-1.-configuracio-del-grup-de-seguretat-internet..md"
+            - "UDXX-02-2.- Configuració del grup de seguretat 'ssh-extern'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-2.-configuracio-del-grup-de-seguretat-ssh-extern..md"
+            - "UDXX-02-3.- Configuració del grup de seguretat 'rdp-extern'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-3.-configuracio-del-grup-de-seguretat-rdp-extern..md"
+            - "UDXX-02-4.- Configuració del grup de seguretat 'http-https.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-4.-configuracio-del-grup-de-seguretat-http-https..md"
+            - "UDXX-02-5.- Configuració del grup de seguretat 'ftp-control'": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-5.-configuracio-del-grup-de-seguretat-ftp-control.md"
+            - "UDXX-02-6.- Configuració del grup de seguretat 'ftp-passiu'.": "aws-academy/pindoles-formatives/udxx-02.-configuracio-dels-grups-de-seguretat/udxx-02-6.-configuracio-del-grup-de-seguretat-ftp-passiu..md"
+        - "UDXX-03.- Desplegament d'una màquina virtual Ubuntu Server 24.04 a AWS Academy": "aws-academy/pindoles-formatives/udxx-03.-desplegament-duna-maquina-virtual-ubuntu-server-24.04-a-aws-academy.md"
+        - "UDXX-04.- Desplegament d'una màquina virtual Windows Server 2022 a AWS Academy": "aws-academy/pindoles-formatives/udxx-04.-desplegament-duna-maquina-virtual-windows-server-2022-a-aws-academy.md"
+      - "Pràctiques":
+        - "UDXXP01.- Configuració d'un bastion host a AWS": "aws-academy/practiques/udxxp01.-configuracio-dun-bastion-host-a-aws.md"
 
 # Pàgines amb `hidden: true` a GitBook: es publiquen però no van al menú.
 not_in_nav: |
@@ -126,44 +126,91 @@ not_in_nav: |
   /ssh-vnc-rdp/qualificables/aa-q.3.2.1-administracio-remota-segura-i-evidencies-de-funcionament.md
 # END nav
 
-extra:
-  contact:
-    name: "Arturo Candela"
-    email: "a.candelamolto@edu.gva.es"
-    blog: "https://portal.edu.gva.es/blogs/s1/arturocandela/"
-
-
 site_url: https://cipfpbatoi.github.io/mkdocs-sx/
 repo_url: https://github.com/cipfpbatoi/mkdocs-sx
-repo_name: mkdocs-sx
+repo_name: cipfpbatoi/mkdocs-sx
+edit_uri: ""   # el contingut s'edita a GitBook, no ací
+copyright: Arturo Candela · CIPFP Batoi
 
 theme:
   name: material
   language: ca
+  favicon: images/favicon.svg
+  icon:
+    logo: material/lan
+    repo: fontawesome/brands/github
+    admonition:
+      info: material/information-outline
+      warning: material/alert-outline
+      danger: material/alert-octagon-outline
+      tip: material/lightbulb-on-outline
+  font:
+    text: Inter
+    code: JetBrains Mono
   features:
-    - navigation.tabs
-    - navigation.sections
+    # Navegació
+    - navigation.tabs          # una pestanya per situació d'aprenentatge
+    - navigation.tabs.sticky   # les pestanyes no desapareixen en fer scroll
+    - navigation.sections      # grups (Píndoles, Pràctiques...) com a seccions
+    - navigation.path          # breadcrumbs damunt del títol
+    - navigation.footer        # botons anterior / següent
+    - navigation.top           # botó "tornar a dalt"
+    - navigation.tracking      # l'URL segueix l'apartat visible
     - navigation.instant
-    - toc.integrate
+    - navigation.instant.progress
+    # Taula de continguts (a la dreta)
+    - toc.follow
+    # Cerca
+    - search.suggest
+    - search.highlight
+    - search.share
+    # Codi
     - content.code.copy
+    - content.code.annotate
   palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Mode clar
     - media: "(prefers-color-scheme: light)"
       scheme: default
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Mode fosc
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: custom
+      accent: custom
       toggle:
-        icon: material/weather-sunny
-        name: Mode clar
+        icon: material/brightness-auto
+        name: Mode automàtic
+
+extra:
+  generator: false
+  social:
+    - icon: material/web
+      link: https://portal.edu.gva.es/blogs/s1/arturocandela/
+      name: Blog d'Arturo Candela
+    - icon: fontawesome/brands/github
+      link: https://github.com/cipfpbatoi/mkdocs-sx
+      name: Repositori a GitHub
+
+extra_css:
+  - stylesheets/extra.css
 
 plugins:
   - search
-  - page-to-pdf     # Botó “Download PDF” per pàgina
-  - print-site:     # /print_page per traure-ho tot en un PDF del navegador
+  - glightbox:               # clic sobre una captura per ampliar-la
+      skip_classes: [no-zoom]
+      zoomable: true
+  - page-to-pdf              # botó "PDF" a cada pàgina
+  - print-site:              # /print_page.html per traure-ho tot en un PDF
       add_to_navigation: false
       print_page_title: "Imprimir tot el lloc"
+      add_cover_page: true
+      add_table_of_contents: true
 
 markdown_extensions:
   - admonition
@@ -171,16 +218,23 @@ markdown_extensions:
   - tables
   - attr_list
   - md_in_html
+  - toc:
+      permalink: true
   - pymdownx.details          # admonitions plegables
-  - pymdownx.superfences      # blocs de codi/mermaid
   - pymdownx.inlinehilite
+  - pymdownx.keys             # ++ctrl+c++
+  - pymdownx.mark
   - pymdownx.highlight:
-      linenums: true          # numeració de línies
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
-
-# Mermaid (diagrames)
-extra_javascript:
-  - https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js
-  - javascripts/mermaid-init.js
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg

@@ -1,3 +1,7 @@
+---
+icon: material/paperclip
+---
+
 # 📎 AA-Q.3.3.6 - Servidor Web de Subzona a AWS
 
 ## 1. Objectiu de la pràctica

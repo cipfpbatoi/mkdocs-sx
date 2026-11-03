@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Instal·lar i configurar escriptori remot en Windows 10
 ---
 

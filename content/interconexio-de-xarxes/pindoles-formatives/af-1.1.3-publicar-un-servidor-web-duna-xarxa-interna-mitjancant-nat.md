@@ -1,3 +1,7 @@
+---
+icon: material/pencil-outline
+---
+
 # 📝 AF 1.1.3 - Publicar un servidor web d'una xarxa interna mitjançant NAT
 
 ##

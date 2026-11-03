@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Connectar des de Linux a un escriptori remot RDP
 ---
 

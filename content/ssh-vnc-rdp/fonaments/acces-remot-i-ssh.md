@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 1. Accés remot i funcionament de SSH
 
 ### El model client-servidor

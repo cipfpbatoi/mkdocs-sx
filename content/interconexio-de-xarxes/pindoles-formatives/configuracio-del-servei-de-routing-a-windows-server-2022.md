@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Configuració del servei de routing i NAT a Windows server 2022
 ---
 

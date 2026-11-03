@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Instal·lar i configurar VNC Server en LUbuntu
 ---
 

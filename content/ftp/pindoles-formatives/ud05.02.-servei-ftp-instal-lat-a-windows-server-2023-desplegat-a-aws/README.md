@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: Servei ftp, instal·lat a Windows Server 2023, desplegat a AWS.
 ---
 

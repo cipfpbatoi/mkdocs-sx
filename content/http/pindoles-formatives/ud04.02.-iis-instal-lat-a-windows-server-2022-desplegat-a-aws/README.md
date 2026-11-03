@@ -1,4 +1,5 @@
 ---
+icon: material/hammer-wrench
 description: IIS, instal·lat a Windows server 2022, desplegat a AWS
 ---
 

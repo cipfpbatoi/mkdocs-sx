@@ -1,3 +1,7 @@
+---
+icon: material/book-open-variant
+---
+
 # 6. SSH en AWS i aplicacions gràfiques X11
 
 ### Connexió a una instància EC2
