@@ -9,7 +9,7 @@ description: Teoria amb pràctica del vist a classe
 
 ### 1. Recordatori del funcionament bàsic
 
-El **DHCP (Dynamic Host Configuration Protocol)** és un protocol de xarxa que permet assignar de manera automàtica paràmetres de configuració de xarxa als clients (IP, màscara, porta d’enllaç, DNS…).\
+El **DHCP (Dynamic Host Configuration Protocol)** és un protocol de xarxa que permet assignar de manera automàtica paràmetres de configuració de xarxa als clients (IP, màscara, porta d’enllaç, DNS…).  
 Funciona sobre **UDP** i utilitza dos ports:
 
 * Port **67** per al servidor.

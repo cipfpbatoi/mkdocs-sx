@@ -164,6 +164,29 @@ def convert_hints(text: str) -> str:
     return "\n".join(out)
 
 
+FENCE_RE = re.compile(r"^\s*(```|~~~)")
+
+
+def convert_hard_breaks(text: str) -> str:
+    """GitBook marca els salts de línia amb `\\` al final; Python-Markdown no.
+
+    Es converteixen en dos espais finals, excepte dins de blocs de codi
+    (on la barra és, per exemple, continuació de línia de Bash).
+    """
+    out, in_fence, in_pre = [], False, False
+    for line in text.split("\n"):
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+        elif "<pre" in line:
+            in_pre = "</pre>" not in line
+        elif "</pre>" in line:
+            in_pre = False
+        elif not in_fence and not in_pre and line.endswith("\\") and not line.endswith("\\\\"):
+            line = line[:-1].rstrip() + "  "
+        out.append(line)
+    return "\n".join(out)
+
+
 def fix_links(text: str, page: Path, space_root: Path) -> str:
     def repl(m: re.Match) -> str:
         target = m["target"]
@@ -185,6 +208,7 @@ def fix_links(text: str, page: Path, space_root: Path) -> str:
 
 def transform(text: str, page: Path, space_root: Path) -> str:
     text = text.replace(".gitbook/assets/", "assets/")
+    text = convert_hard_breaks(text)
     text = convert_hints(text)
     text = EMBED_RE.sub(lambda m: f"[▶ {m['url']}]({m['url']})", text)
     text = fix_links(text, page, space_root)

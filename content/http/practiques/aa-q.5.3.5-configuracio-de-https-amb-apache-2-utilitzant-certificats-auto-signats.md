@@ -43,7 +43,7 @@ S’hauran de configurar **els següents VirtualHost**, assegurant el seu correc
 **3.1 VirtualHost principal**
 
 * **Domini:** `nomcognom.sx`
-* **DocumentRoot:**\
+* **DocumentRoot:**  
   `/var/www/nomcognom.sx/html/`
 
 Aquest VirtualHost haurà de tindre configurats **els següents directoris virtuals**:
@@ -56,11 +56,11 @@ Aquest VirtualHost haurà de tindre configurats **els següents directoris virtu
 
 **3.2 VirtualHosts secundaris**
 
-* **Domini:** `si.nomcognom.sx`\
+* **Domini:** `si.nomcognom.sx`  
   _&#x44;ocumentRoot:_ `/var/www/si/html/`
-* **Domini:** `sox.nomcognom.sx`\
+* **Domini:** `sox.nomcognom.sx`  
   _&#x44;ocumentRoot:_ `/var/www/sox/html/`
-* **Domini:** `pw.nomcognom.sx`\
+* **Domini:** `pw.nomcognom.sx`  
   _&#x44;ocumentRoot:_ `/var/www/pw/html/`
 
 Tots aquests VirtualHost hauran de:

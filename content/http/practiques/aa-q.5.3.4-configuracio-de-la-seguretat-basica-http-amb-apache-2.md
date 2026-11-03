@@ -20,32 +20,32 @@ Cal tindre configurats i funcionals els següents **VirtualHosts i directoris**,
 
 **VirtualHost principal**
 
-* **Domini:**\
+* **Domini:**  
   `nomcognom.sx`
-* **DocumentRoot:**\
+* **DocumentRoot:**  
   `/var/www/nomcognom.sx/html/`
 
 Aquest VirtualHost disposa dels següents **directoris virtuals (Alias)**:
 
-* **Alias `si`**\
-  _&#x52;uta real:_ `/var/www/si/html/`\
+* **Alias `si`**  
+  _&#x52;uta real:_ `/var/www/si/html/`  
   _&#x41;ccés:_ `http://nomcognom.sx/si`
-* **Alias `sox`**\
-  _&#x52;uta real:_ `/var/www/sox/html/`\
+* **Alias `sox`**  
+  _&#x52;uta real:_ `/var/www/sox/html/`  
   _&#x41;ccés:_ `http://nomcognom.sx/sox`
-* **Alias `pw`**\
-  _&#x52;uta real:_ `/var/www/pw/html/`\
+* **Alias `pw`**  
+  _&#x52;uta real:_ `/var/www/pw/html/`  
   _&#x41;ccés:_ `http://nomcognom.sx/pw`
 
 ***
 
 **VirtualHosts específics**
 
-* **Domini:** `si.nomcognom.sx`\
+* **Domini:** `si.nomcognom.sx`  
   _&#x44;ocumentRoot:_ `/var/www/si/html/`
-* **Domini:** `sox.nomcognom.sx`\
+* **Domini:** `sox.nomcognom.sx`  
   _&#x44;ocumentRoot:_ `/var/www/sox/html/`
-* **Domini:** `pw.nomcognom.sx`\
+* **Domini:** `pw.nomcognom.sx`  
   _&#x44;ocumentRoot:_ `/var/www/pw/html/`
 
 ***
