@@ -59,6 +59,8 @@ nav:
       - "Pràctiques":
         - "AF.3.2.1 — Configuració i ús d'un servidor SSH Linux": "ssh-vnc-rdp/practiques/ud03p01.-configuracio-i-us-dun-servidor-ssh-linux.md"
         - "AF.3.2.2 — Configuració i ús d'un servei d'escriptori remot amb VNC": "ssh-vnc-rdp/practiques/ud03p02.-configuracio-i-us-dun-servei-descriptori-remot-amb-vnc.md"
+      - "Qualificables":
+        - "AA-Q.3.2.1 — Administració remota segura i evidències de funcionament": "ssh-vnc-rdp/qualificables/aa-q.3.2.1-administracio-remota-segura-i-evidencies-de-funcionament.md"
   - "SA04 · DNS":
       - "Píndoles formatives":
         - "Configuració del servei DNS a Ubuntu 24.04": "dns/README.md"
@@ -124,7 +126,6 @@ nav:
 not_in_nav: |
   /http/pindoles-formatives/ud04.03.-desplegament-duna-web-estatica-a-amazon-s3.md
   /http/practiques/ud04p03.-desplegament-duna-web-estatica-amb-s3..md
-  /ssh-vnc-rdp/qualificables/aa-q.3.2.1-administracio-remota-segura-i-evidencies-de-funcionament.md
 # END nav
 
 site_url: https://cipfpbatoi.github.io/mkdocs-sx/

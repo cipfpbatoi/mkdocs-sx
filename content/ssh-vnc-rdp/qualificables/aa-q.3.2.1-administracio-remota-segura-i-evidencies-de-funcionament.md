@@ -1,6 +1,5 @@
 ---
 icon: material/clipboard-check-outline
-hidden: true
 ---
 
 # AA-Q.3.2.1 — Administració remota segura i evidències de funcionament
