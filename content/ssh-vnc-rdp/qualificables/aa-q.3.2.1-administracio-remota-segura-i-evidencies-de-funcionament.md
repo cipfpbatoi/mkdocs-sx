@@ -15,27 +15,50 @@ icon: material/clipboard-check-outline
 ```mermaid
 flowchart TB
     subgraph HOST["💻 Equip amfitrió de l'aula"]
-        H["<b>Amfitrió</b><br/>terminal SSH · navegador · Remmina"]
-        subgraph VB["VirtualBox"]
-            GL["<b>GLaDOS</b><br/>Linux Mint XFCE"]
-            AL["<b>Alyx</b><br/>Linux Mint XFCE<br/>servidor VNC"]
-            GF["<b>gordonfreeman</b><br/>Ubuntu Server<br/>NAT · routing · DHCP · Webmin"]
+        H(["💻 <b>Amfitrió</b><br/>terminal SSH · navegador · Remmina"])
+        subgraph VB["📦 VirtualBox"]
+            GL(["🐧 <b>GLaDOS</b><br/>Linux Mint XFCE"])
+            AL(["🐧 <b>Alyx</b><br/>Linux Mint XFCE<br/>🖥️ servidor VNC"])
+            GF{{"🔀 <b>gordonfreeman</b><br/>Ubuntu Server<br/>NAT · routing · DHCP<br/>🌐 Webmin"}}
         end
     end
 
-    subgraph AWS["☁ AWS Academy"]
-        WS["<b>Windows Server</b>"]
-        US["<b>Ubuntu Server</b><br/>només usuari ubuntu"]
+    subgraph AWS["☁️ AWS Academy"]
+        WS["🪟 <b>Windows Server</b>"]
+        US["🐧 <b>Ubuntu Server</b><br/>🔒 només usuari ubuntu"]
     end
 
     GL ---|"xarxa interna 1"| GF
     AL ---|"xarxa interna 2"| GF
 
-    GL -. "③ VNC" .-> AL
-    H -. "① túnel SSH → Webmin" .-> GF
-    H -. "② SSH amb clau" .-> US
-    H -. "④ RDP amb Remmina" .-> WS
-    WS -. "⑤ SSH amb PuTTY (.ppk)" .-> US
+    GL == "③ 🖥️ VNC" ==> AL
+    H == "① 🔐 túnel SSH → Webmin" ==> GF
+    H == "② 🔑 SSH amb clau" ==> US
+    H == "④ 🖥️ RDP amb Remmina" ==> WS
+    WS == "⑤ 🔑 SSH amb PuTTY (.ppk)" ==> US
+
+    classDef host fill:#d9770626,stroke:#d97706,stroke-width:2px
+    classDef mint fill:#2e9e5b26,stroke:#2e9e5b,stroke-width:2px
+    classDef router fill:#12919a40,stroke:#0b6e75,stroke-width:3px
+    classDef ubuntu fill:#e9542026,stroke:#e95420,stroke-width:2px
+    classDef windows fill:#0078d426,stroke:#0078d4,stroke-width:2px
+
+    class H host
+    class GL,AL mint
+    class GF router
+    class US ubuntu
+    class WS windows
+
+    style HOST fill:#d977060d,stroke:#d97706,stroke-width:2px,stroke-dasharray:6 4
+    style VB fill:#0b6e750f,stroke:#0b6e75,stroke-width:1.5px
+    style AWS fill:#ff99000d,stroke:#ff9900,stroke-width:2px,stroke-dasharray:6 4
+
+    linkStyle 0,1 stroke:#8a9a9b,stroke-width:2px
+    linkStyle 2 stroke:#2e9e5b,stroke-width:3px
+    linkStyle 3 stroke:#0b6e75,stroke-width:3px
+    linkStyle 4 stroke:#e95420,stroke-width:3px
+    linkStyle 5 stroke:#0078d4,stroke-width:3px
+    linkStyle 6 stroke:#9b59b6,stroke-width:3px
 ```
 
 | Màquina           | Sistema i rol                                                        |

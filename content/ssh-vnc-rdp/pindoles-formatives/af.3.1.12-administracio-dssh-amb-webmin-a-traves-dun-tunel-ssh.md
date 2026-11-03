@@ -13,16 +13,32 @@ Abans de començar, convé haver llegit [Túnels i redirecció de ports](../fona
 
 ## Escenari
 
-```
- Linux Mint (client)                          Instància AWS (Ubuntu Server)
- ┌──────────────────────────┐                ┌───────────────────────────────┐
- │ Navegador                │                │                               │
- │ https://localhost:10000  │                │  Webmin  → escolta :10000     │
- │          │               │   SSH :22      │     ▲                         │
- │          ▼               │  (xifrat)      │     │ localhost:10000         │
- │ ssh -L 10000:localhost:10000 ════════════════► sshd :22                   │
- └──────────────────────────┘                └───────────────────────────────┘
-        Grup de seguretat d'AWS: només el port 22 obert. El 10000 NO.
+```mermaid
+flowchart LR
+    subgraph CLI["🏫 Aula"]
+        MINT(["🐧 <b>Linux Mint</b><br/>🌐 navegador<br/>https://localhost:10000"])
+    end
+
+    subgraph AWS["☁️ AWS — grup de seguretat: només 🔓 22 · 🚫 10000"]
+        SSHD{{"🔐 <b>sshd</b> :22"}}
+        WEBMIN["🌐 <b>Webmin</b><br/>localhost:10000"]
+    end
+
+    MINT == "🔐 ssh -L 10000:localhost:10000<br/>(trànsit xifrat)" ==> SSHD
+    SSHD -- "localhost:10000" --> WEBMIN
+
+    classDef mint fill:#2e9e5b26,stroke:#2e9e5b,stroke-width:2px
+    classDef sshd fill:#12919a40,stroke:#0b6e75,stroke-width:3px
+    classDef web fill:#e9542026,stroke:#e95420,stroke-width:2px
+    class MINT mint
+    class SSHD sshd
+    class WEBMIN web
+
+    style CLI fill:#d977060d,stroke:#d97706,stroke-width:2px,stroke-dasharray:6 4
+    style AWS fill:#ff99000d,stroke:#ff9900,stroke-width:2px,stroke-dasharray:6 4
+
+    linkStyle 0 stroke:#0b6e75,stroke-width:3px
+    linkStyle 1 stroke:#e95420,stroke-width:2px
 ```
 
 | Element          | Valor a l'exemple                                         |
