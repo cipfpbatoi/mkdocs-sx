@@ -14,10 +14,13 @@ icon: material/clipboard-check-outline
 
 ```mermaid
 flowchart TB
-    subgraph VB["🖥 VirtualBox — equip de l'aula"]
-        GL["<b>GLaDOS</b><br/>Linux Mint XFCE"]
-        AL["<b>Alyx</b><br/>Linux Mint XFCE<br/>servidor VNC"]
-        GF["<b>gordonfreeman</b><br/>Ubuntu Server<br/>NAT · routing · DHCP · Webmin"]
+    subgraph HOST["💻 Equip amfitrió de l'aula"]
+        H["<b>Amfitrió</b><br/>terminal SSH · Remmina"]
+        subgraph VB["VirtualBox"]
+            GL["<b>GLaDOS</b><br/>Linux Mint XFCE"]
+            AL["<b>Alyx</b><br/>Linux Mint XFCE<br/>servidor VNC"]
+            GF["<b>gordonfreeman</b><br/>Ubuntu Server<br/>NAT · routing · DHCP · Webmin"]
+        end
     end
 
     subgraph AWS["☁ AWS Academy"]
@@ -27,17 +30,17 @@ flowchart TB
 
     GL ---|"xarxa interna 1"| GF
     AL ---|"xarxa interna 2"| GF
-    GF ==>|"NAT · masquerade → Internet"| AWS
 
     GL -. "③ VNC" .-> AL
     GL -. "① túnel SSH → Webmin" .-> GF
-    GL -. "④ RDP amb Remmina" .-> WS
-    GL -. "② SSH amb clau" .-> US
+    H -. "② SSH amb clau" .-> US
+    H -. "④ RDP amb Remmina" .-> WS
     WS -. "⑤ SSH amb PuTTY (.ppk)" .-> US
 ```
 
 | Màquina           | Sistema i rol                                                        |
 | ----------------- | -------------------------------------------------------------------- |
+| **Amfitrió**      | Equip físic de l’aula on s’executa VirtualBox. **Des d’ell es connecta a AWS** (SSH i RDP amb Remmina). |
 | **gordonfreeman** | Ubuntu Server. Encaminador NAT (routing + masquerade) i servidor DHCP de les dues xarxes internes. Hi instal·larem Webmin. |
 | **GLaDOS**        | Linux Mint XFCE connectat a la **xarxa interna 1**. Client gràfic.   |
 | **Alyx**          | Linux Mint XFCE connectat a la **xarxa interna 2**. Client gràfic i servidor VNC. |
@@ -54,11 +57,12 @@ flowchart TB
 
 Abans de començar, completa una taula amb les **IP reals** de les teues màquines (les de les xarxes internes les assigna el DHCP de gordonfreeman) i una altra amb els fluxos de l’activitat:
 
-| Origen  | Destinació                | Protocol / port | Finalitat                           |
+| Origen   | Destinació               | Protocol / port | Finalitat                           |
 | ------- | ------------------------- | --------------- | ----------------------------------- |
 | GLaDOS  | gordonfreeman             | SSH 22 → túnel 10000 | Administrar gordonfreeman amb Webmin |
 | GLaDOS  | Alyx                      | VNC 5900        | Escriptori remot Linux → Linux      |
-| GLaDOS  | Windows Server (AWS)      | RDP 3389        | Escriptori remot Linux → Windows    |
+| Amfitrió | Ubuntu Server (AWS)      | SSH 22          | Administració i enduriment d’SSH    |
+| Amfitrió | Windows Server (AWS)     | RDP 3389        | Escriptori remot Linux → Windows    |
 | Windows Server (AWS) | Ubuntu Server (AWS) | SSH 22   | Administració Windows → Linux       |
 
 ## Part 1 — Webmin a gordonfreeman a través d’un túnel SSH
@@ -82,7 +86,7 @@ Repeteix a la teua infraestructura el que hem fet a classe amb la instància d�
 
 ## Part 2 — Seguretat SSH a la instància Ubuntu d’AWS
 
-A classe hem deixat la instància Ubuntu d’AWS amb **autenticació només per clau** i amb accés SSH **només per a l’usuari `ubuntu`**. Ara has de revisar-ho a la teua instància i documentar-ho.
+A classe hem deixat la instància Ubuntu d’AWS amb **autenticació només per clau** i amb accés SSH **només per a l’usuari `ubuntu`**. Ara has de revisar-ho a la teua instància i documentar-ho. Totes les connexions es fan **des de l’equip amfitrió**.
 
 1. Localitza on es defineix `PasswordAuthentication` (recorda que a Ubuntu els fitxers de `/etc/ssh/sshd_config.d/` tenen prioritat sobre `sshd_config`) i comprova que val `no`.
 2. Fes que **només l’usuari `ubuntu`** puga connectar per SSH (`AllowUsers`). Pots fer-ho des de Webmin (*SSH Server → Access Control*) o editant la configuració.
@@ -119,12 +123,12 @@ A classe hem deixat la instància Ubuntu d’AWS amb **autenticació només per 
 
 ## Part 4 — Windows Server d’AWS amb Remmina
 
-Ja vas desplegar una instància Windows Server a AWS (píndola **UDXX-04** de l’apartat AWS Academy). Ara hi connectaràs des de GLaDOS.
+Ja vas desplegar una instància Windows Server a AWS (píndola **UDXX-04** de l’apartat AWS Academy). Ara hi connectaràs **des de l’equip amfitrió**.
 
 1. A la consola d’EC2, selecciona la instància → **Connectar** → **Client RDP**: descarrega el fitxer d’escriptori remot i, amb **Obtindre la contrasenya**, desxifra la contrasenya d’`Administrator` pujant la clau `.pem`.
-2. Connecta des de GLaDOS amb **Remmina** (protocol RDP).
+2. Connecta des de l’amfitrió amb **Remmina** (protocol RDP).
 3. Al perfil de Remmina, configura i prova:
-   * un **directori compartit** de GLaDOS, perquè aparega a Windows;
+   * un **directori compartit** de l’amfitrió, perquè aparega a Windows;
    * la **resolució** de pantalla;
    * la **profunditat de color**;
    * el **tipus de connexió** (ample de banda disponible).
@@ -169,8 +173,8 @@ Inclou una taula breu, escrita amb les teues paraules, comparant **SSH, VNC i RD
 | Criteri                                                           | Per obtindre la puntuació màxima                                                                 | Punts |
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----- |
 | **a)** Mètodes d’accés i administració remota                     | E16 compara SSH, VNC i RDP de manera correcta i raonada.                                         | 1     |
-| **b)** Servei d’accés remot en línia de comandos                  | E02–E07: túnel SSH a gordonfreeman i SSH d’AWS amb només clau i només l’usuari `ubuntu`, provat. | 2     |
-| **c)** Servei d’accés remot en mode gràfic                        | E08–E13: VNC GLaDOS → Alyx i RDP a Windows Server amb Remmina configurat.                        | 2     |
+| **b)** Servei d’accés remot en línia de comandos                  | E02–E07: túnel SSH a gordonfreeman i SSH d’AWS (des de l’amfitrió) amb només clau i només `ubuntu`. | 2     |
+| **c)** Servei d’accés remot en mode gràfic                        | E08–E13: VNC GLaDOS → Alyx i RDP amfitrió → Windows Server amb Remmina configurat.               | 2     |
 | **d)** Comprovació dels mètodes                                   | E06, E09, E12 i E15 inclouen connexió, acció i verificació final pròpies.                        | 1,5   |
 | **e)** Avantatges i deficiències                                  | E13 i E16 identifiquen usos, avantatges, limitacions i ajustos de rendiment.                     | 1     |
 | **f)** Accés entre sistemes de diferent naturalesa                | E12 demostra Linux → Windows (RDP) i E15 Windows → Linux (SSH).                                  | 1     |
