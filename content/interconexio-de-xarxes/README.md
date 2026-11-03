@@ -4,9 +4,10 @@ description: Normes de nomenclatura per a les màquines virtuals
 
 # ⚒ Configuració inicial de les màquines virtuals
 
-{% hint style="danger" %}
-Les normes seran diferents depenent de l'àmbit de la màquina virtual (client/servidor) i del sistema operatiu.
-{% endhint %}
+!!! danger
+
+    Les normes seran diferents depenent de l'àmbit de la màquina virtual (client/servidor) i del sistema operatiu.
+
 
 ## Nom de les màquines:
 

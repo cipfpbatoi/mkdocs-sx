@@ -2,7 +2,7 @@
 description: Configuració d'una porta d'enllaç amb Ubuntu server 24.04 i el programari ufw
 ---
 
-# ⚒ Configuració del servei de routing a Ubuntu Server 24.04
+# ⚒️ Configuració del servei de routing a Ubuntu Server 24.04
 
 ### Escenari inicial:
 
@@ -16,7 +16,7 @@ Les màquines clients disposaran d'una IP a partir de la 192.168.0.101.
 
 La màquina server, configurada amb un sistema operatiu basat a Ubuntu Server 24.04, disposarà de dues targetes de xarxa:
 
-* La primera configurada a la xarxa aula, amb la IP fixa 192.168.0.100. Aquesta interfície de xarxa treballarà com a porta d'enllaç per a connectar a internet a les màquines de la xarxa aula que ho necessiten.&#x20;
+* La primera configurada a la xarxa aula, amb la IP fixa 192.168.0.100. Aquesta interfície de xarxa treballarà com a porta d'enllaç per a connectar a internet a les màquines de la xarxa aula que ho necessiten.
 * La segona configurada com a xarxa NAT o Bridge, i assignació d'IP amb protocol DCHP.
 
 Totes les màquines de la xarxa aula poden comunicar-se internament (podem executar un ping i funciona correctament).
@@ -66,7 +66,7 @@ sudo ufw enable;
 </strong>net/ipv4/ip_forward=1
 </code></pre>
 
-* [ ] Editem el fitxer de configuració **/etc/default/ufw** per a habilitar les funcionalitats de NAT al server, assignant a l'entrada **DEFAULT\_FORWARD\_POLICY** el valor **ACCEPT** &#x20;
+* [ ] Editem el fitxer de configuració **/etc/default/ufw** per a habilitar les funcionalitats de NAT al server, assignant a l'entrada **DEFAULT\_FORWARD\_POLICY** el valor **ACCEPT**
 
 ```systemd
 # Set the default forward policy to ACCEPT, DROP or REJECT.  Please note that
@@ -91,9 +91,7 @@ La configuració introduïda:
 * Configura la **redirecció** del tràfic de xarxa provinent **de la xarxa 192.168.0.1/24** per la targeta de xarxa **enp0s3**, configurada anteriorment com xarxa NAT amb DCHP.
 * Configurat l'emmascarament de la IP d'origen de les peticions redirigides.
 
-<!---->
-
-* [ ] Reiniciem el servei ufw, amb la nova configuració, i comprovem que continuem tenint connexió a internet, i amb la xarxa interna des del servidor:
+- [ ] Reiniciem el servei ufw, amb la nova configuració, i comprovem que continuem tenint connexió a internet, i amb la xarxa interna des del servidor:
 
 ```bash
 sudo ufw disable;
@@ -101,12 +99,21 @@ sudo ufw enable;
 sudo ufw status;
 ```
 
-Comprovem que la màquina sx-srv-xxxx01 té connexió amb qualsevol servidor DNS d'internet:
+Comprovem que la màquina sx-srv-xxxx01 té connexió amb qualsevol servidor DNS d'internet i amb la porta d'enllaç de l'aula:
+
+!!! warning
+
+    A l'aula, els pings cap a internet (per exemple, a **8.8.8.8**) estan capats i és possible que no obtingueu resposta. Per això, sempre que feu un ping a 8.8.8.8, feu també un ping a la porta d'enllaç de l'aula, **172.16.211.1**. Si la porta d'enllaç respon, la connectivitat cap a l'exterior és correcta encara que el ping a 8.8.8.8 no responga.
+
 
 ```bash
 profe@sx-srv-profe01:~$ ping 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 64 bytes from 8.8.8.8: icmp_seq=1 ttl=119 time=21.7 ms
+
+profe@sx-srv-profe01:~$ ping 172.16.211.1
+PING 172.16.211.1 (172.16.211.1) 56(84) bytes of data.
+64 bytes from 172.16.211.1: icmp_seq=1 ttl=63 time=1.02 ms
 ```
 
 Comprovem que continuem tenim connectivitat amb una màquina de la xarxa aula:
@@ -119,10 +126,13 @@ PING sx-cli-profe01 (192.168.0.101) 56(84) bytes of data.
 
 ### Configuració de la porta d'enllaç a la màquina client
 
-Per començar, comprovarem que la màquina client encara no té connectivitat amb internet, fent un ping des de sx-cli-xxxx01 a un servidor DNS d'internet:
+Per començar, comprovarem que la màquina client encara no té connectivitat amb internet, fent un ping des de sx-cli-xxxx01 a un servidor DNS d'internet i a la porta d'enllaç de l'aula (172.16.211.1):
 
 ```bash
 profe@sx-cli-profe01:~$ ping 8.8.8.8
+ping: connect: La red es inaccesible
+
+profe@sx-cli-profe01:~$ ping 172.16.211.1
 ping: connect: La red es inaccesible
 ```
 
@@ -137,13 +147,14 @@ profe@sx-cli-profe01:~$ networkctl status
 
 ```
 
-{% hint style="warning" %}
-En cas de que aparega l'advertencia **"WARNING: systemd-networkd is not running, output will be incomplete."**, haurem de iniciar el servei **systemd-networkd** amb els següents commandaments:
+!!! warning
 
-<pre><code><strong>$ sudo systemctl start systemd-networkd;
-</strong><strong>$ sudo systemctlenable systemd-networkd;
-</strong></code></pre>
-{% endhint %}
+    En cas de que aparega l'advertencia **"WARNING: systemd-networkd is not running, output will be incomplete."**, haurem de iniciar el servei **systemd-networkd** amb els següents commandaments:
+
+    <pre><code><strong>$ sudo systemctl start systemd-networkd;
+    </strong><strong>$ sudo systemctl enable systemd-networkd;
+    </strong></code></pre>
+
 
 Afegim la porta d'enllaç editant el fitxer de configuració Yaml de netplan, a la ruta /etc/netplan/ i editant o afegint la propietat **routes** amb els paràmetres **to** (xarxa desti) i **via** (IP de la porta d'enllaç a utilitzar per accedir a la xarxa destí). Al nostre cas particular, indicarem que la porta d'enllaç per defecte és el server configurat amb la IP 192.168.0.100.
 
@@ -187,12 +198,16 @@ profe@sx-cli-profe01:~$ networkctl status
        Gateway: 192.168.0.100 on enp0s3
 ```
 
-I provem si la màquina client té connectivitat amb internet, fent un ping des de sx-cli-xxxx01 a un servidor DNS d'internet:
+I provem si la màquina client té connectivitat amb internet, fent un ping des de sx-cli-xxxx01 a un servidor DNS d'internet i a la porta d'enllaç de l'aula (recordeu que el ping a 8.8.8.8 pot no respondre a l'aula; el que ha de respondre segur és el de 172.16.211.1):
 
 ```bash
 profe@sx-cli-profe01:~$ ping 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=23.5 ms
+
+profe@sx-cli-profe01:~$ ping 172.16.211.1
+PING 172.16.211.1 (172.16.211.1) 56(84) bytes of data.
+64 bytes from 172.16.211.1: icmp_seq=1 ttl=62 time=1.35 ms
 ```
 
 ### Configuració de les direccions dels servidors DNS
@@ -200,13 +215,11 @@ PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
 Encara que tenim connexió a internet a la màquina client, perquè hem habilitat l'encaminament al server, si tractem de resoldre un nom de domini al client, obtindrem un error:
 
 ```bash
-
-profe@sx-cli-profe01:~$ ping 8.8.8.8
-PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
-64 bytes from 8.8.8.8: icmp_seq=1 ttl=118 time=23.5 ms
+profe@sx-cli-profe01:~$ ping www.google.com
+ping: www.google.com: Fallo temporal en la resolución del nombre
 ```
 
-És degut al fet que no hem configurat cap servidor DNS a la configuració de xarxa del client, i per tant no sap a on ha de demanar la resolució del nom de domini.&#x20;
+És degut al fet que no hem configurat cap servidor DNS a la configuració de xarxa del client, i per tant no sap a on ha de demanar la resolució del nom de domini.
 
 Per a solucionar-ho, haurem d'editar el fitxer de configuració de netplan, i afegir la configuració corresponent als servidors DNS. Per a l'exemple afegirem els dos servidors DNS principals de Google (amb les IP 8.8.8.8 i 8.8.4.4):
 

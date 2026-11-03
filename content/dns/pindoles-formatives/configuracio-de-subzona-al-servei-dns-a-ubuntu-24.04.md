@@ -196,11 +196,12 @@ Name:   impresora.zona1.midominio.aula
 Address: 192.168.0.251
 ```
 
-{% hint style="danger" %}
-Fins ara hem configurat el servidor del subdomini zona1.midominio.aula.
+!!! danger
 
-A continuació configurarem el servidor principal del domini midominio.com., que delegarà les peticions de resolució del subdomini a aquest servidor.
-{% endhint %}
+    Fins ara hem configurat el servidor del subdomini zona1.midominio.aula.
+
+    A continuació configurarem el servidor principal del domini midominio.com., que delegarà les peticions de resolució del subdomini a aquest servidor.
+
 
 ### Configuració del servei DNS de zona del domini principal.
 
@@ -216,9 +217,10 @@ La màquina virtual d'aquest servidor té configurades dues interfície de xarxa
 
 <figure><img src="../assets/image (62) (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
 
-{% hint style="info" %}
-Per a configurar routing, NAT i DHCP, podeu consultar els tutorials de les unitats anteriors.
-{% endhint %}
+!!! info
+
+    Per a configurar routing, NAT i DHCP, podeu consultar els tutorials de les unitats anteriors.
+
 
 Obrim un terminal, per a fer les operacions de configuració:
 
@@ -416,9 +418,10 @@ Name:   impresora.zona1.midominio.aula
 Address: 192.168.0.251
 ```
 
-{% hint style="danger" %}
-Ara podem resoldre les DNS del domini i del subdomini, fent servir el servidor del domini com a servidor DNS dels clients. Proba-ho!!
-{% endhint %}
+!!! danger
+
+    Ara podem resoldre les DNS del domini i del subdomini, fent servir el servidor del domini com a servidor DNS dels clients. Proba-ho!!
+
 
 ### Configuració utilitzant Servidors Delegats
 

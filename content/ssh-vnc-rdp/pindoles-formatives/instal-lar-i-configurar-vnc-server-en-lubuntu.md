@@ -2,7 +2,7 @@
 description: Instal·lar i configurar VNC Server en LUbuntu
 ---
 
-# ⚒ Instal·lar i configurar VNC Server en LUbuntu
+# ⚒️ AF.3.1.6 — Instal·lar i configurar VNC Server en LUbuntu
 
 Podem instal·lar un servidor d'escriptori remot a LUbuntu, per a poder accedir remotament a l'entorn gràfic. Existeixen múltiples alternatives, però per al nostre cas pràctic, farem servir el paquet tightvncserver.
 
@@ -32,11 +32,13 @@ Se utilizarán 1.774 kB de espacio de disco adicional después de esta operació
 ¿Desea continuar? [S/n] 
 </code></pre>
 
-Obrim el port 5901, per a permetre la connexió al servei:
+En un laboratori intern podem permetre VNC només des de la subxarxa d’aula. No l’exposes a Internet: VNC tradicional no oferix per si sol la mateixa protecció que SSH.
 
+```bash
+profe@profe:~$ sudo ufw allow from <subxarxa-aula> to any port 5901 proto tcp
 ```
-profe@profe:~$ sudo ufw allow 5901/tcp
-```
+
+En un entorn no aïllat, configura el servidor VNC perquè escolte només en `localhost` i accedix-hi mitjançant un túnel SSH.
 
 I executarem el servei, per a crear els fitxers de configuració del servei, i per a configurar la contrasenya d'accés:
 
@@ -57,15 +59,16 @@ Log file is /home/profe/.vnc/profe:1.log
 
 ```
 
-{% hint style="info" %}
-Si en algún moment volem canviar la contrasenya d'access, o crear un usuari amb permissos exclusius de visualització, podrem executar el següent comandament:
+!!! info
 
-profe@profe:\~$ vncpasswd
-{% endhint %}
+    Si en algún moment volem canviar la contrasenya d'access, o crear un usuari amb permissos exclusius de visualització, podrem executar el següent comandament:
+
+    profe@profe:\~$ vncpasswd
+
 
 * [ ] Configuració del servei:
 
-Perquè tightvncserver funcione correctament amb l'escriptori xfce4 instal·lat, hem de modificar el fitxer de configuració \~/.vnc/xstartup, indicant-li quins comandaments ha d'executar quan s'inicia el servei, per tal d'executar l'entorn gràfic.&#x20;
+Perquè tightvncserver funcione correctament amb l'escriptori xfce4 instal·lat, hem de modificar el fitxer de configuració \~/.vnc/xstartup, indicant-li quins comandaments ha d'executar quan s'inicia el servei, per tal d'executar l'entorn gràfic.
 
 En primer lloc, hem de detindre el servei vncserver:
 
@@ -82,7 +85,7 @@ xrdb $HOME/.Xresources
 startxfce4 &
 ```
 
-Guardem els canvis del fitxer de configuració, i iniciem el servei vncserver:&#x20;
+Guardem els canvis del fitxer de configuració, i iniciem el servei vncserver:
 
 ```bash
 profe@profe:~$ vncserver;
@@ -95,6 +98,7 @@ Log file is /home/profe/.vnc/profe:1.log
 
 Ara podrem connectar al servei d'escriptori remot, amb qualsevol client VNC, exposat al port 5901.
 
-{% hint style="danger" %}
-Cada volta que iniciem la màquina, haurem d'executar el comandament vncserver per que siga posible connectar remotament.
-{% endhint %}
+!!! danger
+
+    Cada volta que iniciem la màquina, haurem d'executar el comandament vncserver per que siga posible connectar remotament.
+

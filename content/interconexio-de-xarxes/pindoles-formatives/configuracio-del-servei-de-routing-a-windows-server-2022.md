@@ -89,9 +89,10 @@ I seguim les instruccions de l'assistent.
 
 <figure><img src="../assets/image (23).png" alt=""><figcaption></figcaption></figure>
 
-{% hint style="danger" %}
-Si la següent opció no ens permet sel·leccionar la targeta de xarxa que està connectada a internet, hem de tancar l'assistent i tornar a llançar-lo.
-{% endhint %}
+!!! danger
+
+    Si la següent opció no ens permet sel·leccionar la targeta de xarxa que està connectada a internet, hem de tancar l'assistent i tornar a llançar-lo.
+
 
 <figure><img src="../assets/image (24).png" alt=""><figcaption></figcaption></figure>
 
