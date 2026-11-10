@@ -61,6 +61,8 @@ nav:
         - "AF.3.2.2 — Configuració i ús d'un servei d'escriptori remot amb VNC": "ssh-vnc-rdp/practiques/ud03p02.-configuracio-i-us-dun-servei-descriptori-remot-amb-vnc.md"
       - "Qualificables":
         - "AA-Q.3.2.1 — Administració remota segura i evidències de funcionament": "ssh-vnc-rdp/qualificables/aa-q.3.2.1-administracio-remota-segura-i-evidencies-de-funcionament.md"
+      - "Activitats de profundització":
+        - "Accés a Linux i Windows mitjançant un bastió SSH en AWS": "ssh-vnc-rdp/profunditzacio/bastio-ssh-aws.md"
   - "SA04 · DNS":
       - "Píndoles formatives":
         - "Configuració del servei DNS a Ubuntu 24.04": "dns/README.md"
