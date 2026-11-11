@@ -64,6 +64,18 @@ nav:
       - "Activitats de profundització":
         - "Accés a Linux i Windows mitjançant un bastió SSH en AWS": "ssh-vnc-rdp/profunditzacio/bastio-ssh-aws.md"
   - "SA04 · DNS":
+      - "Fonaments":
+        - "Fonaments del servei DNS": "dns/fonaments/README.md"
+        - "1. Noms, jerarquia i organització": "dns/fonaments/noms-i-jerarquia.md"
+        - "2. Resolució, transport i memòria cau": "dns/fonaments/resolucio-i-cache.md"
+        - "3. Registres i fitxers de zona": "dns/fonaments/registres-i-zones.md"
+        - "4. Zones, delegació i glue": "dns/fonaments/delegacio-i-glue.md"
+        - "5. El client DNS": "dns/fonaments/clients-dns.md"
+        - "6. El servidor DNS": "dns/fonaments/servidors-dns.md"
+        - "7. De netsx.es a HTTPS": "dns/fonaments/netsx-es-i-https.md"
+        - "8. Consultes i diagnòstic": "dns/fonaments/diagnostic-dns.md"
+        - "9. Repàs i autoavaluació": "dns/fonaments/repas.md"
+        - "Referències i recursos": "dns/fonaments/referencies.md"
       - "Píndoles formatives":
         - "Configuració del servei DNS a Ubuntu 24.04": "dns/README.md"
         - "Configuració del servei DNS a Windows Server 2022": "dns/pindoles-formatives/configuracio-del-servei-dns-a-windows-server-2022.md"

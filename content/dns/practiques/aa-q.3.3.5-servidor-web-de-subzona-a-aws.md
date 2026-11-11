@@ -6,263 +6,176 @@ icon: material/paperclip
 
 ## 1. Objectiu de la pràctica
 
-En aquesta activitat desplegaràs una infraestructura en AWS composta per:
+S'ha de desplegar una infraestructura pública amb un servidor DNS autoritatiu, una subzona delegada de `netsx.es` i un servidor web accessible per HTTPS amb un certificat de Let's Encrypt.
 
-* Un servidor DNS autoritatiu amb una subzona pròpia.
-* Un servidor web públic accessible amb un nom de domini personalitzat.
-* Una delegació DNS real del domini docent `netsx.es`, gestionada pel professor.
+L'activitat integra DNS, delegació, HTTP, TLS, administració remota i diagnòstic. La teoria necessària està en [De netsx.es a HTTPS](../fonaments/netsx-es-i-https.md) i [Consultes i diagnòstic](../fonaments/diagnostic-dns.md).
 
-Aquesta pràctica integra conceptes de DNS, HTTP, seguretat en xarxes i troubleshooting en entorns cloud.
+## 2. Infraestructura per alumne
 
-## 2. Infraestructura a desplegar per alumne
+Es creen dues instàncies EC2, cadascuna amb l'Elastic IP prevista en el laboratori:
 
-Cada alumne crearà **dues instàncies EC2**, cadascuna amb una Elastic IP.
+| Element | Servidor DNS | Servidor web |
+| --- | --- | --- |
+| Nom | `dns1.<nomprimercognom>.netsx.es` | `www.<nomprimercognom>.netsx.es` |
+| Sistema i servei | Ubuntu/Debian amb BIND9 o Windows Server amb DNS | Ubuntu/Debian amb Apache/Nginx o Windows Server amb IIS |
+| Servei públic | UDP/53 i TCP/53 | TCP/80 i TCP/443 |
+| Administració | SSH o RDP des de l'origen autoritzat | SSH o RDP des de l'origen autoritzat |
 
-### Màquina 1 — Servidor DNS autoritatiu
+El nom de la subzona s'acorda amb el professorat, utilitzant nom i primer cognom sense espais ni accents. Exemple de convenció: `arturocandela.netsx.es`. Les IP s'han d'obtindre de les instàncies pròpies; no s'han de copiar adreces de captures antigues.
 
-* Nom canònic (FQDN): `dns1.<nomprimercognom>.netsx.es`
-  * Exemple: `dns1.arturocandela.netsx.es`
-* Sistema operatiu (Elegir una opció):
-  * Ubuntu/Debian + Bind9
-  * Windows Server + DNS Role
-* Ports oberts:
-  * 53/TCP i 53/UDP
-  * 22/TCP (si és Linux)
-  * 3389/TCP (si és Windows)
+El servidor DNS ha d'oferir autoritat sobre la subzona i tindre desactivada la recursió pública. La configuració de resolució del sistema operatiu de cada instància és independent de les zones publicades.
 
-### Màquina 2 — Servidor Web
+## 3. Security Groups
 
-* Nom canònic (FQDN): `www.<nomprimercognom>.netsx.es`
-  * Exemple: `www.arturocandela.netsx.es`
-* Sistema operatiu (Elegir una opció):
-  * Ubuntu/Debian + Apache2 o Nginx
-  * Windows Server + IIS
-* Ports oberts:
-  * 80/TCP
-  * 22/TCP (Linux)
-  * 3389/TCP (Windows)
+Es mantenen quatre grups amb funcions diferenciades. Les regles dels grups aplicats a una instància se sumen; un grup buit no anul·la permisos concedits per un altre.
 
-## 3. Security Groups a crear
+| Grup | Entrada | Eixida | Aplicació |
+| --- | --- | --- | --- |
+| SG1 — ssh-administració | 22/TCP o 3389/TCP, segons el sistema, des de la IP pública autoritzada del centre | Segons la política del laboratori | DNS i web |
+| SG2 — eixida-internet | Cap | Trànsit permés cap a Internet segons la pràctica | DNS i web |
+| SG3 — dns-public | 53/UDP i 53/TCP des d'Internet | Segons la política del laboratori | Només DNS |
+| SG4 — http-https-public | 80/TCP i 443/TCP des d'Internet | Segons la política del laboratori | Només web |
 
-Cada alumne crearà **4 Security Groups** i els aplicarà a les màquines corresponents.
+En l'escenari IPv4, Internet es representa amb `0.0.0.0/0`. Si es configura IPv6, cal revisar també adreces, rutes, regles IPv6 i registres AAAA. No s'ha de publicar un AAAA que no funcione.
 
-### SG1 — ssh-administració
+S'ha de comprovar també el tallafoc del sistema operatiu. El port 80 ha de ser accessible per a la validació HTTP-01; el port 443 és el del servei HTTPS.
 
-Objectiu: permetre accés remot només des de l’IP del centre.
+## 4. Configuració de la zona de l'alumne
 
-* 22/TCP → IP pública del centre
-* 3389/TCP → IP pública del centre (si s’usa Windows)
-* Egress → tot permés
+La zona primària és `<nomprimercognom>.netsx.es` i ha d'incloure:
 
-Aplicar a: totes les màquines.
+- SOA amb dades coherents i sèrie actualitzada.
+- NS amb el nom del servidor DNS de l'alumne.
+- A de `dns1` amb la IP pública del servidor DNS.
+- A de `www` amb la IP pública del servidor web.
+- A de l'àpex si també es publicarà el web sense `www`.
 
-### SG2 — eixida-internet
+El registre de `dns1` ha de coincidir amb el glue que es publicarà en el pare. La IP privada d'EC2 no substitueix la IP pública en els registres destinats a Internet.
 
-Objectiu: permetre connexions d’eixida.
-
-* Ingress → cap
-* Egress → 0.0.0.0/0 (tot permés)
-
-Aplicar a: totes les màquines.
-
-### SG3 — dns-public
-
-Objectiu: publicar el servei DNS.
-
-* 53/TCP → 0.0.0.0/0
-* 53/UDP → 0.0.0.0/0
-
-Aplicar a: només al servidor DNS.
-
-### SG4 — http-public
-
-Objectiu: publicar el web.
-
-* 80/TCP → 0.0.0.0/0
-
-Aplicar a: només al servidor web.
-
-### Resum d’aplicació
-
-* El servidor DNS utilitza: SG1, SG2 i SG3.
-* El servidor Web utilitza: SG1, SG2 i SG4.
-
-| Servidor | SG1 | SG2 | SG3 | SG4 |
-| -------- | :-: | :-: | :-: | :-: |
-| DNS      |  X  |  X  |  X  |     |
-| WEB      |  X  |  X  |     |  X  |
-
-## 4. Configuració de la subzona DNS
-
-L’alumne crearà una subzona:
-
-```
-<nomprimercognom>.netsx.es
+```mermaid
+flowchart TD
+    C["Client extern"] --> R["Resolutor DNS"]
+    R --> P["netsx.es: delegació del professorat"]
+    R --> D["EC2 DNS: subzona de l'alumne"]
+    D -->|IP del web| R
+    R -->|Resposta| C
+    C -->|HTTP 80 i HTTPS 443| W["EC2 web"]
 ```
 
-Exemple:
+## 5. Proves abans de demanar la delegació
 
-```
-arturocandela.netsx.es
-```
+Primer es valida la configuració i la càrrega de la zona. Des del servidor DNS es consulta la seua IP privada o local. Des de la instància web es consulta la **IP pública del DNS**:
 
-El servidor autoritatiu serà:
-
-```
-dns1.<nomprimercognom>.netsx.es
+```text
+dig @<IP_PRIVADA_DNS> <nomprimercognom>.netsx.es SOA +norecurse
+dig @<IP_PUBLICA_DNS> www.<nomprimercognom>.netsx.es A +norecurse
+dig @<IP_PUBLICA_DNS> www.<nomprimercognom>.netsx.es A +tcp +norecurse
 ```
 
-La zona ha d’incloure:
+Els marcadors entre `< >` s'han de substituir abans d'executar les ordres; s'hi mostren per descriure els paràmetres. Cal acreditar `NOERROR`, `aa` i la IP esperada. Per comprovar UDP sense canvi automàtic a TCP, es pot utilitzar `+notcp +ignore`.
 
-* SOA
-* NS
-* Registre A del DNS (`dns1`)
-*   Registre A del web (`www`)
+En el servidor web es comprova el servei local i el VirtualHost del nom. La configuració d'Apache, Nginx o IIS ha de correspondre al FQDN que s'utilitzarà, no només a l'accés per IP.
 
-    ```
-      ┌────────────────────────┐           ┌────────────────────────┐
-      │      DNS EC2           │           │       Web EC2          │
-      │ dns1.<nom>.netsx.es    │           │ www.<nom>.netsx.es     │
-      ├────────────────────────┤           ├────────────────────────┤
-      │ Elastic IP: X.X.X.X    │           │ Elastic IP: Y.Y.Y.Y    │
-      │ SG aplicats:           │           │ SG aplicats:           │
-      │  - ssh-administració   │           │  - ssh-administració   │
-      │  - eixida-internet     │           │  - eixida-internet     │
-      │  - dns-public          │           │  - http-public         │
-      ├────────────────────────┤           ├────────────────────────┤
-      │ Ports oberts:          │           │ Ports oberts:          │
-      │ 53 TCP/UDP (DNS)       │           │ 80 TCP (HTTP)          │
-      │ 22 SSH o 3389 RDP      │           │ 22 SSH o 3389 RDP      │
-      └────────────────────────┘           └────────────────────────┘
-                 │                                      │
-                 │ 53 TCP/UDP                           │ 80 TCP
-                 │                                      │
-                 └──────────────────────┬───────────────┘
-                                        │
-                                        ▼
-                         ┌────────────────────────┐
-                         │        Internet        │
-                         └────────────────────────┘
-    ```
+## 6. Proves des de l'aula i des d'AWS
 
-## 5. Proves obligatòries (abans de demanar la delegació)
+!!! warning "Atenció"
 
-### 5.1. Prova des del servidor DNS
+    Si `dig`, `nslookup`, `+trace` o altres proves públiques fallen o donen resultats inesperats des de la xarxa de Conselleria, **s'han de repetir directament en la terminal d'una instància Ubuntu/Linux d'AWS**. Es pot usar la instància web per provar el DNS. No cal esperar una confirmació del professorat ni crear obligatòriament una tercera instància per fer aquesta comparació.
 
-```
-dig @<IP_PRIVADA_DNS> www.<nomprimercognom>.netsx.es
-```
 
-### 5.2. Prova des del servidor Web
+S'han d'anotar origen, ordre completa, servidor consultat, hora i resultat. Si la instància web és Windows, es poden fer les consultes equivalents amb `nslookup` o utilitzar una instància Linux de proves disponible.
 
-```
-dig @<IP_PUBLICA_DNS> www.<nomprimercognom>.netsx.es
-curl http://localhost
-```
-
-## 6. Nota sobre el firewall de capa 7 del centre
-
-La xarxa del Conselleria utilitza un firewall de capa 7 que pot:
-
-* Bloquejar consultes DNS directes
-* Redirigir trànsit DNS
-* Filtrar consultes no considerades legítimes
-
-Per tant:
-
-> És possible que `dig` no funcione des de l’aula encara que tot estiga ben configurat.
-
-Això no és un error vostre.
-
-### 6.1. Procediment si les proves des de l’aula fallen
-
-1. Informar el professor.
-2. Si el professor confirma que és problema del firewall, l’alumne crearà una **tercera instància EC2** per a proves externes.
-3. Des d’eixa màquina externament es provarà:
-
-```
-dig @<IP_PUBLICA_DNS> www.<nomprimercognom>.netsx.es
-curl http://<IP_PUBLICA_WEB>
-```
-
-Si funciona → la configuració és correcta.
+Una tercera instància pot aportar una comprovació independent si el laboratori ho permet. La xarxa del centre pot condicionar les consultes, però no s'ha d'atribuir automàticament qualsevol error al tallafoc. Una consulta directa correcta des d'AWS acredita l'accessibilitat del servidor des d'eixe origen; encara s'ha de verificar la delegació pública.
 
 ## 7. Delegació DNS real
 
-Quan les proves siguen correctes, el professor afegirà en el DNS de `netsx.es`:
+Quan el DNS responga correctament des d'una altra instància, s'entreguen al professorat el nom de la subzona, el FQDN del DNS, la seua IP pública, la IP pública del web i les evidències de consulta.
 
-```
-<nomprimercognom>.netsx.es.      NS   dns1.<nomprimercognom>.netsx.es.
-dns1.<nomprimercognom>.netsx.es. A    <IP_publica_DNS>
-```
+El professorat afegirà en la zona **pare `netsx.es`**:
 
-Exemple:
-
-```
-arturocandela.netsx.es.      NS   dns1.arturocandela.netsx.es.
-dns1.arturocandela.netsx.es. A    54.62.123.40
+```text
+<nomprimercognom>.netsx.es.      IN NS dns1.<nomprimercognom>.netsx.es.
+dns1.<nomprimercognom>.netsx.es. IN A  <IP_PUBLICA_DNS>
 ```
 
-## 8. Proves després de la delegació
+La segona línia és el glue necessari perquè el servidor està dins de la zona delegada. Els registres de la zona filla continuen sent responsabilitat de l'alumne. No s'ha de configurar `type forward` com a substitut d'aquesta delegació.
 
-Des de qualsevol lloc:
+Si canvia la IP pública del DNS, s'ha d'informar el professorat per actualitzar el glue, a més d'actualitzar la zona filla. No cal modificar el glue del DNS si només canvia la IP del web.
 
+## 8. Proves després de la delegació i HTTPS
+
+### 8.1. Resolució pública
+
+Des d'una instància Linux d'AWS s'han de consultar SOA, NS i A sense forçar directament el servidor autoritatiu de l'alumne, i seguir la delegació:
+
+```text
+dig <nomprimercognom>.netsx.es NS
+dig <nomprimercognom>.netsx.es SOA
+dig www.<nomprimercognom>.netsx.es A
+dig www.<nomprimercognom>.netsx.es AAAA
+dig +trace www.<nomprimercognom>.netsx.es A
 ```
-dig www.<nomprimercognom>.netsx.es
-curl http://www.<nomprimercognom>.netsx.es
-```
+
+També es contrasta amb un resolutor recursiu extern accessible des d'AWS. S'ha d'identificar en les evidències quin resolutor ha contestat. La falta d'AAAA és normal si no s'ha configurat IPv6.
+
+### 8.2. HTTP i emissió del certificat
+
+S'ha de comprovar `http://www.<nomprimercognom>.netsx.es` des d'un altre origen. Una vegada funcione DNS i HTTP, s'obté un certificat de Let's Encrypt amb un client ACME adequat al servidor web. El [capítol de DNS i HTTPS](../fonaments/netsx-es-i-https.md) inclou un exemple amb Apache i Certbot.
+
+La via ordinària de la pràctica és HTTP-01. S'ha d'explicar per què el port 80 ha de ser públic i per què una entrada local en `hosts` no és suficient. Si s'utilitza DNS-01 com a alternativa, s'ha de documentar la publicació del TXT i el procediment de renovació.
+
+### 8.3. HTTPS i renovació
+
+S'ha de comprovar `https://www.<nomprimercognom>.netsx.es` amb navegador i `curl`, sense ignorar errors de certificat. Cal revisar el nom inclòs en el certificat, l'emissor i la vigència.
+
+Amb Certbot, s'ha de comprovar la renovació amb `sudo certbot renew --dry-run` i identificar el temporitzador o mecanisme equivalent. Si s'utilitza un altre client, s'aporta la prova equivalent.
 
 ## 9. Contingut mínim del web
 
-* Fitxer `index.html` amb el nom complet de l’alumne.
-* Missatge de confirmació.
-* Opcional: estil CSS, imatges, pàgines addicionals.
+- Pàgina `index.html` amb la identificació acadèmica indicada pel professorat.
+- Missatge que identifique el servei i la subzona.
+- Accés funcional mitjançant el nom i HTTPS.
+- Opcionalment, estil CSS, imatges i pàgines addicionals.
 
 ## 10. Documentació a entregar
 
-### 10.1. Informació de configuració
+### 10.1. Configuració
 
-* IP pública del DNS
-* IP pública del Web
-* Captures de configuració dels Security Groups
-* Nom de la subzona
+- Noms de la subzona, DNS i web; IP públiques i funció de cadascuna.
+- Captures de Security Groups i dels permisos del tallafoc local.
+- En BIND: declaració de zona, opcions rellevants i fitxer de zona. En Windows: zona, SOA, NS, A i configuració pertinent.
+- Dades comunicades al professorat per crear la delegació.
 
-### 10.2. Proves
+### 10.2. Evidències i interpretació
 
-* Proves des del servidor DNS
-* Proves des del servidor Web
-* Proves des de l’aula (si funcionen)
-* Proves des de la màquina externa (si s’ha necessitat)
-* Proves després de la delegació
+- Validació i consulta local del servidor DNS.
+- Consultes al DNS públic des d'una altra instància, per UDP i TCP.
+- NS i glue del pare i resposta autoritativa del fill.
+- Resolució pública i recorregut de delegació des d'AWS.
+- Proves des de l'aula i comparació amb AWS si hi ha diferències.
+- HTTP, HTTPS, dades públiques del certificat i prova de renovació.
+- Explicació de què demostra cada prova i de les incidències trobades.
 
-### 10.3. Configuració del DNS aportada per l’alumne
+No s'han d'incloure claus privades, claus d'accés d'AWS ni credencials en el lliurament.
 
-* Si s'usa Bind9:
-  * \named.conf.local
-  * \forward..netsx.es
-* Si s'usa Windows Server - Captures de configuració de:
-  * Zona
-  * SOA
-  * NS
-  * Registres A
+## 11. Criteris d'avaluació
 
-## 11. Criteris d’avaluació
+- Funcionament del DNS autoritatiu i coherència dels registres.
+- Delegació DNS completada amb NS i glue correctes.
+- Publicació del servidor web pel nom assignat.
+- HTTPS amb certificat vàlid i renovació comprovada.
+- Configuració correcta de Security Groups i tallafoc local.
+- Distinció entre proves locals, directes i de resolució pública.
+- Diagnòstic raonat i comparació aula/AWS quan calga.
+- Documentació clara, completa i reproduïble.
 
-* Funcionament del DNS autoritatiu
-* Funcionament del servidor web
-* Correcta configuració dels Security Groups
-* Proves internes i externes realitzades
-* Delegació DNS completada
-* Documentació clara i completa
-* Configuració DNS correcta (Bind o Windows)
-* Capacitat de troubleshooting davant el firewall del centre
+## 12. Activitats d'aprofundiment
 
-### 12. Activitats d'Aprofundiment
+En acabar les tasques principals abans del temps previst, es realitzen les activitats d'aprofundiment indicades pel professorat:
 
-En cas d'haver acabat la pràctica, abans de l'horari establert, realitza les següents activitats (Obligatoòriament):
+- Crear una pàgina personal responsive amb Bootstrap; es pot utilitzar IA explicant l'adaptació realitzada.
+- Publicar també el web sense `www` i explicar els registres, VirtualHost i noms del certificat necessaris.
+- Investigar el PTR de la IP pública. Comparar la resposta d'un resolutor públic amb una zona inversa creada localment i explicar qui té l'autoritat real. Si AWS Academy no permet modificar el PTR, documentar la limitació; no s'ha de presentar una resposta local com si fora pública.
+- Incorporar les evidències al lliurament de la pràctica.
 
-* [ ] Mitjançant inteligència artificial, fes una web responsive i xula utilitzant el framework de css bootstrap . La pàgina ha de ser la teua personal com si fos un currículum.
-* [ ] Investiga quins registres hauries de posar per a que la direcció sense `www` també resolga el servidor web.
-* [ ] Crea els registres inversos correctament per a que funcione la búsqueda inversa i afegeix-los a aws en cas de ser necessari.
-* [ ] Afegeix tota la documentació al bulletí de la pràctica quan s'obriga
-*
+**Referències:** [teoria de delegació](../fonaments/delegacio-i-glue.md), [Let's Encrypt](https://letsencrypt.org/docs/challenge-types/), [Certbot](https://eff-certbot.readthedocs.io/en/stable/using.html) i [PTR públic en AWS](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Elastic_Addressing_Reverse_DNS.html).

@@ -1,447 +1,177 @@
 ---
 icon: material/hammer-wrench
-description: Configuració de subzona al servei DNS a Ubuntu Server 24.04
+description: "Delegació real d'ext.aula.internal entre dos servidors BIND, amb NS, glue i proves diferenciades."
 ---
 
 # ⚒️ Configuració de subzona al servei DNS a Ubuntu 24.04
 
-Partim de dues màquines virtual, amb un sistema operatiu basat a Ubuntu Server 24.04
+Aquesta guia continua la [configuració del servidor DNS Linux](../README.md). Abans de començar, cal llegir [zones, delegació i glue](../fonaments/delegacio-i-glue.md). S'utilitza un únic escenari coherent amb la pràctica de subzona; les IP s'han d'adaptar al rang assignat a l'aula.
 
-### Configuració del servei DNS de zona del subdomini.
+## 1. Escenari
 
-En primer lloc, configurarem el servidor DNS que actua com a servidor de zona del subdomini.
+| Equip | Adreça de l'exemple | Responsabilitat |
+| --- | --- | --- |
+| DNS del domini pare | `192.168.0.1` | Zona `aula.internal` i resolutor dels clients. |
+| DNS de la zona filla | `192.168.0.2` | Zona primària `ext.aula.internal`. |
+| Clients | Xarxa `192.168.0.0/24` | Consulten el DNS `192.168.0.1`. |
+| Web de la zona filla | `192.168.0.250` | Exemple de registre `www.ext.aula.internal`. |
+| Correu de la zona filla | `192.168.0.251` | Exemple de registre `mail.ext.aula.internal`. |
 
-La màquina virtual d'aquest servidor té configurada una interfície de xarxa, connectada a la xarxa interna 'aula'.
+Els registres web i correu no instal·len els serveis corresponents. En aquesta guia es comprova DNS.
 
-<figure><img src="../assets/image (62).png" alt=""><figcaption><p>Configuració de xarxa interna.</p></figcaption></figure>
-
-Obrim un terminal, per a fer les operacions de configuració:
-
-* [ ] Configuració de la xarxa
-
-Editem el fitxer de netplan, per indicar que el servidor de la zona del subdomini es troba a la IP 192.168.0.2
-
-* [ ] Instal·lació del servei DNS bind9
-
-Instal·lem el servei DNS a Ubuntu, la seua documentació i el paquet dnsutils.
-
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo apt install bind9 bind9utils bind9-doc dnsutils
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  bind9-dnsutils bind9-host bind9-libs bind9-utils dns-root-data liblmdb0 libmaxminddb0 libuv1
-Suggested packages:
-  bind-doc resolvconf mmdb-bin
-The following NEW packages will be installed:
-  bind9 bind9-dnsutils bind9-doc bind9-host bind9-libs bind9-utils dns-root-data dnsutils liblmdb0 libmaxminddb0 libuv1
-0 upgraded, 11 newly installed, 0 to remove and 13 not upgraded.
-Need to get 5240 kB of archives.
-After this operation, 19.1 MB of additional disk space will be used.
-Do you want to continue? [Y/n]
+```mermaid
+flowchart TD
+    C["Clients: DNS 192.168.0.1"] --> P["Pare: aula.internal"]
+    P -->|NS i glue de la delegació| F["Fill: ext.aula.internal"]
+    F --> W["www: 192.168.0.250"]
+    F --> M["mail: 192.168.0.251"]
+    P --> I["Zona inversa del rang compartit"]
 ```
 
-* [ ] Configuració general del servei DNS:
+## 2. Configurar el servidor de la zona filla
 
-Editem el fitxer **/etc/bind/named.conf.options** per a configurar el acl de la xarxa, i els forwarders, si ho necessitem:
+En el segon servidor s'instal·len BIND i les ferramentes:
 
 ```bash
-acl aula-internal-network {
-        192.168.0.0/24;
-};
-options {
-        directory "/var/cache/bind";
+sudo apt update
+sudo apt install bind9 bind9-utils dnsutils
+```
 
-        allow-query { localhost; aula-internal-network; };
-        allow-transfer { localhost; };
+En el bloc `options` existent de `/etc/bind/named.conf.options`, s'estableixen permisos per al laboratori:
 
-        // If there is a firewall between you and nameservers you want
-        // to talk to, you may need to fix the firewall to allow multiple
-        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+```bind
+recursion no;
+allow-query { localhost; 192.168.0.0/24; };
+allow-transfer { none; };
+```
 
-        // If your ISP provided one or more IP addresses for stable
-        // nameservers, you probably want to use them as forwarders.
-        // Uncomment the following block, and insert the addresses replacing
-        // the all-0\'s placeholder.
+Aquest servidor serà autoritatiu de la zona filla. No necessita resoldre altres dominis per als clients. La configuració DNS del seu sistema operatiu és una qüestió separada.
 
-        forwarders {
-                8.8.8.8;
-                8.8.4.4;
-        };
+En `/etc/bind/named.conf.local` s'afig:
 
-        recursion yes;
-
-        //========================================================================
-        // If BIND logs error messages about the root key being expired,
-        // you will need to update your keys.  See https://www.isc.org/bind-keys
-        //========================================================================
-        dnssec-validation no;
-
-        listen-on-v6 { none; };
+```bind
+zone "ext.aula.internal" {
+    type primary;
+    file "/etc/bind/db.ext.aula.internal";
+    allow-update { none; };
 };
 ```
 
-Podem actualitzar el fitxer **/etc/default/named** per indicar que ha d'escolar per defecte les peticions IPv4:
+Contingut de `/etc/bind/db.ext.aula.internal`:
+
+```dns
+$ORIGIN ext.aula.internal.
+$TTL 300
+@ IN SOA dns1.ext.aula.internal. admin.aula.internal. (
+    2026111101 ; serial
+    3600       ; refresh
+    600        ; retry
+    604800     ; expire
+    300        ; negative cache minimum
+)
+     IN NS    dns1.ext.aula.internal.
+dns1 IN A     192.168.0.2
+www  IN A     192.168.0.250
+mail IN A     192.168.0.251
+@    IN MX    10 mail.ext.aula.internal.
+```
+
+S'ha d'adaptar la sèrie a una versió superior a la que ja existisca, validar i recarregar:
 
 ```bash
-OPTIONS="-u bind -4"
+sudo named-checkconf
+sudo named-checkzone ext.aula.internal /etc/bind/db.ext.aula.internal
+sudo systemctl restart bind9
+sudo systemctl status bind9 --no-pager
 ```
 
-* [ ] Configuració de una nova zona de subdomini (zona1.midominio.aula.):
-
-Editem el fitxer **/etc/bind/named.conf.local**, per indicar les zones o dominis de resolució del servidor. Ací configurarem la zona zona1.midominio.aula, i la zona inversa 0.168.192, corresponent al rang de xarxa 192.168.0.x.
-
-A les dues zones indicarem si el servei actuarà com a primari (master) o secundari (slave), així com el fitxer de configuració de la resolució:
+Si s'utilitza UFW, s'autoritza el DNS des de la xarxa del laboratori:
 
 ```bash
-// Configuració per al domini aula.internal
-zone "zona1.midominio.aula" IN {
-        type master;
-        file "/etc/bind/forward.zona1.midominio.aula";
-        allow-update { none; };
-};
-
-// Configuració per al rang 192.168.0.0/24
-zone "0.168.192.in-addr.arpa" IN {
-        type master;
-        file "/etc/bind/reverse.zona1.midominio.aula";
-        allow-update { none; };
-};
+sudo ufw allow from 192.168.0.0/24 to any port 53 proto udp
+sudo ufw allow from 192.168.0.0/24 to any port 53 proto tcp
+sudo ufw status
 ```
 
-* [ ] Configuració del fitxer de resolució directa:
+S'han de conservar les regles d'administració remota existents. No cal desactivar i reactivar el tallafoc per a cada canvi.
 
-Per a crear la nostra BD de resolució de noms, editem el fitxer **/etc/bind/forward.zona1.midominio.aula**, incluint els registres DNS de configuració de la zona del subdomini:
+## 3. Delegar des del servidor pare
+
+La zona `aula.internal` ja ha d'estar configurada en el primer servidor. **S'afigen** aquestes línies al seu fitxer de zona directa, mantenint la resta de registres:
+
+```dns
+ext.aula.internal.      IN NS dns1.ext.aula.internal.
+dns1.ext.aula.internal. IN A  192.168.0.2
+```
+
+El primer registre és la delegació. El segon és el glue que permet localitzar el servidor perquè el seu nom està dins de la subzona delegada. Cal incrementar la sèrie del SOA del pare.
+
+**No es declara `ext.aula.internal` com a `type forward` per fer aquesta delegació.** Un reenviament condicional és un mecanisme diferent i podria ocultar que falten els NS del pare.
+
+Perquè els clients puguen consultar el pare com a resolutor, les opcions del primer servidor han de permetre recursió només des de la xarxa autoritzada. Exemple de fragments dins del bloc `options`:
+
+```bind
+recursion yes;
+allow-query { localhost; 192.168.0.0/24; };
+allow-recursion { localhost; 192.168.0.0/24; };
+allow-query-cache { localhost; 192.168.0.0/24; };
+allow-transfer { none; };
+```
+
+La disponibilitat de resolució d'altres dominis dependrà també de l'eixida de xarxa i de la configuració general. No s'ha de traslladar aquesta recursió privada al servidor públic d'AWS sense limitar-ne l'accés.
+
+Es valida el fitxer del pare amb el nom que tinga en la instal·lació. Si s'ha seguit la guia anterior:
 
 ```bash
-$TTL    30
-@       IN      SOA     dns1.zona1.midominio.aula. admin.midominio.aula. (
-                                2               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-;
-$ORIGIN zona1.midominio.aula.
-@       IN      NS      dns1
-dns1    IN      A       192.168.0.2
-intranet        IN      A       192.168.0.250
-impresora       IN      A       192.168.0.251
-printer         IN      CNAME   impresora.zona1.midominio.aula.
-
+sudo named-checkconf
+sudo named-checkzone aula.internal /etc/bind/forward.aula.internal
+sudo systemctl reload bind9
 ```
 
-* [ ] Configuració del fitxer de resolució inversa:
+## 4. Administrar la zona inversa compartida
 
-Per a crear la nostra BD de resolució inversa d'IP, editem el fitxer **/etc/bind/reverse.zona1.midominio.aula**, incloent-hi els registres DNS de la nostra zona:
+La delegació directa no delega el rang IP. En aquest exemple els dos servidors estan dins del mateix `/24`. Es manté una sola zona inversa `0.168.192.in-addr.arpa`, administrada pel servidor pare, i s'hi afigen els PTR necessaris:
+
+```dns
+2   IN PTR dns1.ext.aula.internal.
+250 IN PTR www.ext.aula.internal.
+251 IN PTR mail.ext.aula.internal.
+```
+
+Si ja existeixen PTR per a aquestes IP, s'han de revisar i actualitzar amb coherència. No s'han de deixar registres contradictoris heretats de l'exemple anterior. S'incrementa la sèrie de la zona inversa, es valida i es recarrega.
+
+No s'ha de crear una segona còpia primària independent del mateix `/24` en el fill. Si es vol replicació, cal una zona secundària; si es vol delegació inversa, cal un disseny explícit del rang. En AWS, la inversa pública depén del proveïdor de la IP.
+
+## 5. Verificar cada part
+
+Des d'un client del laboratori:
 
 ```bash
-$TTL    30
-@       IN      SOA     dns1.zona1.midominio.aula. admin.midominio.aula. (
-                                1               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
+# Autoritat del fill: s'espera resposta amb aa.
+dig @192.168.0.2 ext.aula.internal SOA +norecurse
+dig @192.168.0.2 www.ext.aula.internal A +norecurse
 
-; info del nameserver
-        IN      NS      dns1.zona1.midominio.aula.
-dns1    IN      A       192.168.0.2
+# Delegació del pare: revisar AUTHORITY i ADDITIONAL.
+dig @192.168.0.1 www.ext.aula.internal A +norecurse
 
-; reverse loockup dns server
-2       IN      PTR     dns1.zona1.midominio.aula.
+# Resolució completa mitjançant el DNS dels clients.
+dig @192.168.0.1 www.ext.aula.internal A
+dig @192.168.0.1 ext.aula.internal MX
 
-; reverse loockup hosts
-250     IN      PTR     intranet.zona1.midominio.aula.
-251     IN      PTR     impresora.zona1.midominio.aula.
+# Transport TCP i zona inversa.
+dig @192.168.0.2 www.ext.aula.internal A +tcp +norecurse
+dig @192.168.0.1 -x 192.168.0.250
 ```
 
-Comprovem que no hi ha errors als nostres fitxers de configuració:
+Es guarden les ordres i les respostes completes, amb una explicació de què acredita cada prova. `+trace` des de l'arrel pública no pot descobrir una zona privada del laboratori com `aula.internal`.
 
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo named-checkconf
-```
+## 6. Traslladar el concepte a netsx.es
 
-Engeguem el servei:
+En la [pràctica d'AWS](../practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md), el pare és `netsx.es` i el fill és `nomcognom.netsx.es`. El professorat publica NS i glue al pare, i l'alumne administra el fill. Els registres anunciats a Internet han d'utilitzar les IP públiques adequades. La [guia de DNS i HTTPS](../fonaments/netsx-es-i-https.md) connecta la delegació amb Let's Encrypt.
 
-```bash
-profe@sx-srv-profe-dhcp: sudo service bind9 start;
-profe@sx-srv-profe-dhcp: sudo service bind9 status;
+!!! warning "Atenció"
 
-profe@sx-srv-profe-dhcp: sudo systemctl enable named;
-profe@sx-srv-profe-dhcp: sudo systemctl start named;
-profe@sx-srv-profe-dhcp: sudo systemctl status named;
-```
+    Si una consulta al DNS públic falla des de la xarxa de Conselleria, s'ha de repetir directament des d'una instància Ubuntu/Linux d'AWS. Les proves de la zona privada de VirtualBox es fan en la xarxa privada que hi té accés: AWS no pot consultar les IP privades del laboratori sense connectivitat específica. Cal documentar l'origen i seguir el [diagnòstic ordenat](../fonaments/diagnostic-dns.md).
 
-I configurem el tallafoc del servidor perquè habilite les connexions al servei Bind9:
 
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo ufw allow Bind9;
-profe@sx-srv-profe-dhcp:~$ sudo ufw reload;
-profe@sx-srv-profe-dhcp:~$ sudo ufw disable;
-profe@sx-srv-profe-dhcp:~$ sudo ufw enable;
-profe@sx-srv-profe-dhcp:~$ sudo ufw status;
-```
-
-* [ ] Prova del servei configurat
-
-Podem provar el servei, indicant a nslookup que ha de fer servir aquest servidor DNS com a servidor de resolució:
-
-```
-profe@sx-srv-profe-dhcp:~$ nslookup printer.zona1.midominio.aula 192.168.0.2
-Server:         192.168.0.2
-Address:        192.168.0.2#53
-
-Name:   impresora.zona1.midominio.aula
-Address: 192.168.0.251
-```
-
-!!! danger "Perill"
-
-    Fins ara hem configurat el servidor del subdomini zona1.midominio.aula.
-
-    A continuació configurarem el servidor principal del domini midominio.com., que delegarà les peticions de resolució del subdomini a aquest servidor.
-
-
-### Configuració del servei DNS de zona del domini principal.
-
-A continuació, configurarem el servidor DNS que actua com a servidor de zona del domini principal.
-
-La màquina virtual d'aquest servidor té configurades dues interfície de xarxa:
-
-* Una connectada a NAT, perquè el servidor tinga accés a internet i puga instal·lar paquets.
-
-<figure><img src="../assets/image (3).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a NAT</p></figcaption></figure>
-
-* Una connectada a la xarxa interna 'aula'.
-
-<figure><img src="../assets/image (62) (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
-
-!!! info "Informació"
-
-    Per a configurar routing, NAT i DHCP, podeu consultar els tutorials de les unitats anteriors.
-
-
-Obrim un terminal, per a fer les operacions de configuració:
-
-* [ ] Instal·lació del servei DNS
-
-Instal·lem el servei DNS a Ubuntu, la seua documentació i el paquet dnsutils.
-
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo apt install bind9 bind9utils bind9-doc dnsutils
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  bind9-dnsutils bind9-host bind9-libs bind9-utils dns-root-data liblmdb0 libmaxminddb0 libuv1
-Suggested packages:
-  bind-doc resolvconf mmdb-bin
-The following NEW packages will be installed:
-  bind9 bind9-dnsutils bind9-doc bind9-host bind9-libs bind9-utils dns-root-data dnsutils liblmdb0 libmaxminddb0 libuv1
-0 upgraded, 11 newly installed, 0 to remove and 13 not upgraded.
-Need to get 5240 kB of archives.
-After this operation, 19.1 MB of additional disk space will be used.
-Do you want to continue? [Y/n]
-```
-
-* [ ] Configuració general del servei DNS:
-
-Editem el fitxer **/etc/bind/named.conf.options** per a configurar el acl de la xarxa, i els forwarders, si ho necessitem:
-
-```bash
-acl aula-internal-network {
-        192.168.0.0/24;
-};
-options {
-        directory "/var/cache/bind";
-
-        allow-query { localhost; aula-internal-network; };
-        allow-transfer { localhost; };
-
-        // If there is a firewall between you and nameservers you want
-        // to talk to, you may need to fix the firewall to allow multiple
-        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
-
-        // If your ISP provided one or more IP addresses for stable
-        // nameservers, you probably want to use them as forwarders.
-        // Uncomment the following block, and insert the addresses replacing
-        // the all-0\'s placeholder.
-
-        forwarders {
-                8.8.8.8;
-                8.8.4.4;
-        };
-
-        recursion yes;
-
-        //========================================================================
-        // If BIND logs error messages about the root key being expired,
-        // you will need to update your keys.  See https://www.isc.org/bind-keys
-        //========================================================================
-        dnssec-validation no;
-
-        listen-on-v6 { none; };
-};
-```
-
-Podem actualitzar el fitxer **/etc/default/named** per indicar que ha d'escolar per defecte les peticions IPv4:
-
-```bash
-OPTIONS="-u bind -4"
-```
-
-* [ ] Configuració de una nova zona de domini (midominio.aula.):
-
-Editem el fitxer **/etc/bind/named.conf.local**, per indicar les zones o dominis de resolució del servidor. Ací configurarem:
-
-* La zona midominio.aula
-* La zona inversa 0.168.192, corresponent al rang de xarxa 192.168.0.x.
-* La zona del subdomini. zona1.midominio.aula, indicant que és de tipo fordward, i indicant el servidor DNS de la zona delegada.
-
-<pre class="language-bash"><code class="lang-bash">// Configuració per al domini aula.internal
-zone "midominio.aula" IN {
-        type master;
-        file "/etc/bind/forward.midominio.aula";
-        allow-update { none; };
-};
-
-<strong>// Configuració per al domini zona1.aula.internal
-</strong><strong>zone "zona1.midominio.aula" IN {
-</strong><strong>        type forward;
-</strong><strong>        forwarders { 192.168.0.2; };
-</strong><strong>};
-</strong>
-// Configuració per al rang 192.168.0.0/24
-zone "0.168.192.in-addr.arpa" IN {
-        type master;
-        file "/etc/bind/reverse.midominio.aula";
-        allow-update { none; };
-};
-</code></pre>
-
-* [ ] Configuració del fitxer de resolució directa:
-
-Per a crear la nostra BD de resolució de noms, editem el fitxer **/etc/bind/forward.midominio.aula**, incluint els registres DNS de configuració de la zona del subdomini:
-
-```bash
-$TTL    30
-@       IN      SOA     dns1.midominio.aula. admin.midominio.aula. (
-                                2               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-;
-$ORIGIN midominio.aula.
-@       IN      NS      dns1
-dns1    IN      A       192.168.0.1
-intranet        IN      A       192.168.0.150
-impresora       IN      A       192.168.0.151
-printer         IN      CNAME   impresora.midominio.aula.
-;
-$ORIGIN zona1.midominio.aula.
-@       IN      NS      dns1
-dns1    IN      A       192.168.0.2
-```
-
-* [ ] Configuració del fitxer de resolució inversa:
-
-Per a crear la nostra BD de resolució inversa d'IP, editem el fitxer **/etc/bind/reverse.midominio.aula**, incloent-hi els registres DNS de la nostra zona:
-
-```bash
-$TTL    30
-@       IN      SOA     dns1.midominio.aula. admin.midominio.aula. (
-                                1               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-
-; info del nameserver
-        IN      NS      dns1.midominio.aula.
-dns1    IN      A       192.168.0.1
-
-; reverse loockup dns server
-1       IN      PTR     dns1.midominio.aula.
-2       IN      PTR     dns1.zona1.midominio.aula.
-
-; reverse loockup hosts
-150     IN      PTR     intranet.midominio.aula.
-151     IN      PTR     impresora.midominio.aula.
-```
-
-Comprovem que no hi ha errors als nostres fitxers de configuració:
-
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo named-checkconf
-```
-
-Engeguem el servei:
-
-```bash
-profe@sx-srv-profe-dhcp: sudo service bind9 start;
-profe@sx-srv-profe-dhcp: sudo service bind9 status;
-
-profe@sx-srv-profe-dhcp: sudo systemctl enable named;
-profe@sx-srv-profe-dhcp: sudo systemctl start named;
-profe@sx-srv-profe-dhcp: sudo systemctl status named;
-```
-
-I configurem el tallafoc del servidor perquè habilite les connexions al servei Bind9:
-
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo ufw allow Bind9;
-profe@sx-srv-profe-dhcp:~$ sudo ufw reload;
-profe@sx-srv-profe-dhcp:~$ sudo ufw disable;
-profe@sx-srv-profe-dhcp:~$ sudo ufw enable;
-profe@sx-srv-profe-dhcp:~$ sudo ufw status;
-```
-
-* [ ] Prova del servei configurat
-
-Podem provar el servei, indicant a nslookup que ha de fer servir aquest servidor DNS com a servidor de resolució:
-
-```
-profe@sx-srv-profe-dhcp:~$ nslookup impresora.midominio.aula 192.168.0.1
-Server:         192.168.0.1
-Address:        192.168.0.1#53
-
-Name:   impresora.midominio.aula
-Address: 192.168.0.151
-
-profe@sx-srv-profe-dhcp:~$ nslookup impresora.zona1.midominio.aula 192.168.0.1
-Server:         192.168.0.1
-Address:        192.168.0.1#53
-
-Name:   impresora.zona1.midominio.aula
-Address: 192.168.0.251
-```
-
-!!! danger "Perill"
-
-    Ara podem resoldre les DNS del domini i del subdomini, fent servir el servidor del domini com a servidor DNS dels clients. Proba-ho!!
-
-
-### Configuració utilitzant Servidors Delegats
-
-Tot el que hem vist fins ara, ha sigut configurant els glue-records. Aquesta es la manera correcta de configurar-ho perquè gràcies a ella, podem escalar i mantindre el servidors adecuadament. Un altra opció, pot ser configurant la zona delegada i el servidor DNS delegat per al domini, per a realitzar aquesta configuració es pot fer de la següent manera:
-
-Primer, afegim la configuració de zona del servidor, la zona delegada
-
-```bash
-// Configuració per al domini zona1.aula.internal
-zone "zona1.midominio.aula" IN {
-        type forward;
-        forwarders { 192.168.0.2; };
-};
-```
-
-I després afegim els registres al DNS principal.
-
-```bash
-; Delegacion de Zona
-ext.aula.internal.        IN NS   dns1.ext.aula.internal.
-dns1.ext.aula.internal.   IN A    192.168.0.3
-```
+**Referències:** [BIND ARM](https://bind9.readthedocs.io/en/stable/), [RFC 1034](https://www.rfc-editor.org/rfc/rfc1034) i [requisits de glue](https://www.rfc-editor.org/rfc/rfc9471.html).

@@ -5,6 +5,13 @@ description: Configuració del servei DNS a Ubuntu Server 24.04
 
 # ⚒️ Configuració del servei DNS a Ubuntu 24.04
 
+Abans de configurar el servei, cal treballar els [fonaments de DNS](fonaments/README.md), especialment els [registres i fitxers de zona](fonaments/registres-i-zones.md). Per interpretar les proves es disposa de la [guia de diagnòstic](fonaments/diagnostic-dns.md).
+
+!!! warning "Atenció"
+
+    En proves de DNS públic que fallen des de la xarxa de Conselleria, s'han de repetir les consultes directament des d'una instància Ubuntu/Linux d'AWS i comparar els resultats. Les proves contra IP privades de VirtualBox continuen requerint accés a la xarxa del laboratori.
+
+
 Partim d'una màquina virtual, amb un sistema operatiu basat a Ubuntu Server 24.04, i que té configurades dues interfícies de xarxa:
 
 * Una connectada a NAT, perquè el servidor tinga accés a internet i puga instal·lar paquets.
@@ -68,7 +75,9 @@ options {
         directory "/var/cache/bind";
 
         allow-query { localhost; aula-internal-network; };
-        allow-transfer { localhost; };
+        allow-transfer { none; };
+        allow-recursion { localhost; aula-internal-network; };
+        allow-query-cache { localhost; aula-internal-network; };
 
         // If there is a firewall between you and nameservers you want
         // to talk to, you may need to fix the firewall to allow multiple
@@ -90,7 +99,7 @@ options {
         // If BIND logs error messages about the root key being expired,
         // you will need to update your keys.  See https://www.isc.org/bind-keys
         //========================================================================
-        dnssec-validation no;
+        dnssec-validation auto;
 
         listen-on-v6 { none; };
 };
@@ -167,25 +176,25 @@ $TTL    30
 ```
 
 * Registre **SOA** (Start of Authority):
-  * L'**@** referència al nivell principal de la zona que estem configurant, indicada al fitxer **/etc/bind/named.conf.internal(aula.internal.)**
+  * L'**@** referència al nivell principal de la zona que estem configurant, indicada al fitxer **/etc/bind/named.conf.local (aula.internal.)**
   * **SOA** indica que estem configurant el servidor DNS autoritary de la zona.
   * dns1.aula.internal. indica la DNS del servidor
   * admin.aula.internal. Indica el correu electrònic de l'administrador (el primer punt substitueix l'@ del correu).
   * La resta de camps numèrics són:
-    1. **2**: Aquest és el número de sèrie. Es recomana incrementar aquest número cada vegada que es realitza un canvi a la zona per facilitar la propagació de la informació.
+    1. **2**: Aquest és el número de sèrie. S’ha d’incrementar quan es modifica la zona perquè els secundaris detecten la nova versió; no buida les memòries cau dels resolutors.
     2. **604800**: Temps de refresc. Indica cada quants segons han de comprovar altres servidors DNS si hi ha hagut canvis al servidor primari.
     3. **86400**: Temps de reintent. Indica quant de temps esperar abans de provar de nou si un intent de comunicació falla.
     4. **2419200**: Temps d'expiració. Indica quant de temps un servidor secundari pot mantenir la seva còpia de la zona sense actualitzar abans de considerar-la obsoleta.
-    5. **604800**: Temps de vida de la memòria cau negativa (Negative Cache TTL). Indica quant de temps un servidor ha de mantenir en memòria cau les respostes negatives (com ara "no s'ha trobat") abans de consultar de nou el servidor primari.
+    5. **604800**: Temps de vida de la memòria cau negativa (Negative Cache TTL). Intervé en el TTL de les respostes negatives: s’utilitza el menor entre aquest valor i el TTL del SOA. No és el TTL per defecte dels altres registres, que defineix $TTL.
 
 ```bash
         IN      NS      dns1.aula.internal.                              
-dns     IN      A       192.168.0.1 
+dns1    IN      A       192.168.0.1
 ```
 
 * **NS** indica que estem configurant la direcció del servidor DNS del domini.
 * **dns1.aula.internal.** Indica la direcció del servidor.
-* La resolució del nom **'dns'** de la zona (.aula.internal.) es correspon amb la IP **192.168.0.1.**
+* La resolució del nom **'dns1'** de la zona (.aula.internal.) es correspon amb la IP **192.168.0.1.**
 
 ```bash
 gateway IN      A       192.168.0.1                                      
@@ -193,7 +202,7 @@ dhcp    IN      A       192.168.0.1
 ```
 
 * Estem configurant tres registres A, o de resolució de nom a IP, que apunten a la mateixa IP destí. Amb ells hem indicat que:
-  * La resolució del nom **'dns'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
+  * La resolució del nom **'dns1'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
   * La resolució del nom **'gateway'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
   * La resolució del nom **'dhcp'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
 
@@ -221,7 +230,6 @@ $TTL    30
 
 ; info del nameserver
         IN      NS      dns1.aula.internal.
-dns1    IN      A       192.168.0.1
 
 ; reverse loockup dns server
 1       IN      PTR     dns1.aula.internal.
@@ -249,25 +257,24 @@ $TTL   30
 ```
 
 * Registre **SOA** (Start of Authority):
-  * L'**@** referència al nivell principal de la zona que estem configurant, indicada al fitxer **/etc/bind/named.conf.internal(aula.internal.)**
+  * L'**@** referència al nivell principal de la zona que estem configurant, indicada al fitxer **/etc/bind/named.conf.local (aula.internal.)**
   * **SOA** indica que estem configurant el servidor DNS autoritary de la zona.
   * dns1.aula.internal. indica la DNS del servidor
   * admin.aula.internal. Indica el correu electrònic de l'administrador (el primer punt substitueix l'@ del correu).
   * La resta de camps numèrics són:
-    1. **2**: Aquest és el número de sèrie. Es recomana incrementar aquest número cada vegada que es realitza un canvi a la zona per facilitar la propagació de la informació.
+    1. **1**: Aquest és el número de sèrie. S’ha d’incrementar quan es modifica la zona perquè els secundaris detecten la nova versió; no buida les memòries cau dels resolutors.
     2. **604800**: Temps de refresc. Indica cada quants segons han de comprovar altres servidors DNS si hi ha hagut canvis al servidor primari.
     3. **86400**: Temps de reintent. Indica quant de temps esperar abans de provar de nou si un intent de comunicació falla.
     4. **2419200**: Temps d'expiració. Indica quant de temps un servidor secundari pot mantenir la seva còpia de la zona sense actualitzar abans de considerar-la obsoleta.
-    5. **604800**: Temps de vida de la memòria cau negativa (Negative Cache TTL). Indica quant de temps un servidor ha de mantenir en memòria cau les respostes negatives (com ara "no s'ha trobat") abans de consultar de nou el servidor primari.
+    5. **604800**: Temps de vida de la memòria cau negativa (Negative Cache TTL). Intervé en el TTL de les respostes negatives: s’utilitza el menor entre aquest valor i el TTL del SOA. No és el TTL per defecte dels altres registres, que defineix $TTL.
 
 ```bash
 ; info del nameserver
         IN      NS      dns1.aula.internal.
-dns1    IN      A       192.168.0.1
 ```
 
 * **@** referència al domini de la zona que estem configurant, **NS** indica que estem configurant la direcció del servidor DNS del domini i **dns1.aula.internal.** indica la dns de resoluició del nameserver.
-* **192.168.0.1** indica la IP de la dns **dns1** de la zona configurada (.aula.internal.)
+* L’adreça de `dns1.aula.internal` es defineix amb A en la zona directa; els PTR d’aquesta zona inversa apunten als noms complets.
 
 ```bash
 ; reverse loockup dns server
@@ -296,7 +303,6 @@ Engeguem el servei:
 ```bash
 ## Bind9
 profe@sx-srv-profe-dhcp: sudo systemctl restart bind9;
-profe@sx-srv-profe-dhcp: sudo systemctl restart bind9;
 ## named 
 profe@sx-srv-profe-dhcp: sudo systemctl enable named;
 profe@sx-srv-profe-dhcp: sudo systemctl start named;
@@ -308,8 +314,6 @@ I configurem el tallafoc del servidor perquè habilite les connexions al servei 
 ```bash
 profe@sx-srv-profe-dhcp:~$ sudo ufw allow Bind9;
 profe@sx-srv-profe-dhcp:~$ sudo ufw reload;
-profe@sx-srv-profe-dhcp:~$ sudo ufw disable;
-profe@sx-srv-profe-dhcp:~$ sudo ufw enable;
 profe@sx-srv-profe-dhcp:~$ sudo ufw status;
 ```
 
@@ -319,7 +323,7 @@ profe@sx-srv-profe-dhcp:~$ sudo ufw status;
 
     Per a poder provar el servei DNS configurat, haurem d'engegar un client, i configurar la seua tarjeta de xarxa, indicant que la IP del servei DNS siga la IP de la màquina que acabem de configurar.
 
-    Si estem fent servir un servidor DNS, haurem de modificar els seus paràmertes, i reiniciar el servei, perque els clients puguen rebre la configuració correcta.
+    Si els clients reben els paràmetres per DHCP, cal actualitzar el servidor DHCP perquè anuncie el DNS del laboratori i renovar la configuració dels clients.
 
 
 Comprovem la configuració de la xarxa:
@@ -346,7 +350,7 @@ IP6.ROUTE[1]:                           dst = fe80::/64, nh = ::, mt = 256
 
 ```
 
-A continuació, podem probar les resolucions de noms amb el comandament dig:
+A continuació es mostren consultes amb `nslookup`. També s’ha de contrastar la resposta amb `dig @192.168.0.1 intranet.aula.internal A` i revisar el servidor i el tipus de resposta:
 
 ```bash
 jorge@sx-cli-jorge-01:~$ nslookup intranet
