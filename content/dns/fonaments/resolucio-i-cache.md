@@ -16,7 +16,7 @@ L'aplicació necessita informació d'un nom. El **client resolutor** del sistema
 | Autoritatiu | Respon amb dades de la zona que serveix. | Que resolga dominis aliens per a qualsevol client. |
 | Reenviador | Rep consultes que un altre servidor li remet. | Que siga el titular de les zones consultades. |
 
-Un mateix programa pot exercir diversos rols. En el laboratori, el BIND que serveix `aula.internal` pot també resoldre noms externs per als clients. En AWS convé dedicar el servidor públic a la funció autoritativa.
+Un mateix programa pot exercir diversos rols. En el laboratori, el BIND que serveix `nomcognom.netsx.es` pot també resoldre noms externs per als clients. En AWS convé dedicar el servidor públic a la funció autoritativa.
 
 ## 2.2. Recursió i iteració
 

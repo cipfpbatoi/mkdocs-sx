@@ -1,177 +1,122 @@
 ---
 icon: material/hammer-wrench
-description: "Delegació real d'ext.aula.internal entre dos servidors BIND, amb NS, glue i proves diferenciades."
+description: "Assaig de delegació de nomcognom.netsx.es en VirtualBox amb BIND9, NS i glue."
 ---
 
 # ⚒️ Configuració de subzona al servei DNS a Ubuntu 24.04
 
-Aquesta guia continua la [configuració del servidor DNS Linux](../README.md). Abans de començar, cal llegir [zones, delegació i glue](../fonaments/delegacio-i-glue.md). S'utilitza un únic escenari coherent amb la pràctica de subzona; les IP s'han d'adaptar al rang assignat a l'aula.
+Aquesta guia continua la [píndola de BIND9](../README.md). Es conserva la zona personal **`nomcognom.netsx.es`** i s'afegeix un segon servidor que fa de pare **`netsx.es`** dins del laboratori. S'assaja el mateix tall de zona que després configurarà el professorat en el DNS públic.
 
 ## 1. Escenari
 
-| Equip | Adreça de l'exemple | Responsabilitat |
+| Equip | IP d'exemple | Paper |
 | --- | --- | --- |
-| DNS del domini pare | `192.168.0.1` | Zona `aula.internal` i resolutor dels clients. |
-| DNS de la zona filla | `192.168.0.2` | Zona primària `ext.aula.internal`. |
-| Clients | Xarxa `192.168.0.0/24` | Consulten el DNS `192.168.0.1`. |
-| Web de la zona filla | `192.168.0.250` | Exemple de registre `www.ext.aula.internal`. |
-| Correu de la zona filla | `192.168.0.251` | Exemple de registre `mail.ext.aula.internal`. |
+| DNS de l'alumne | `192.168.0.1` | Autoritatiu de `nomcognom.netsx.es`. Conserva també la zona inversa del `/24`. |
+| DNS pare de proves | `192.168.0.2` | Autoritatiu de la còpia de laboratori de `netsx.es` i resolutor dels clients durant l'assaig. |
+| Clients | Xarxa `192.168.0.0/24` | Consulten `192.168.0.2` per verificar la delegació. |
 
-Els registres web i correu no instal·len els serveis corresponents. En aquesta guia es comprova DNS.
+Es canvia `nomcognom` pel nom assignat i s'adapten les IP al rang propi. La còpia de `netsx.es` s'utilitza dins de la xarxa interna de VirtualBox. Durant l'assaig, els clients que consulten el pare local veuran la seua còpia de `netsx.es`. Per consultar la versió pública del domini cal un resolutor extern.
 
-```mermaid
-flowchart TD
-    C["Clients: DNS 192.168.0.1"] --> P["Pare: aula.internal"]
-    P -->|NS i glue de la delegació| F["Fill: ext.aula.internal"]
-    F --> W["www: 192.168.0.250"]
-    F --> M["mail: 192.168.0.251"]
-    P --> I["Zona inversa del rang compartit"]
-```
+## 2. Preparar el servidor fill
 
-## 2. Configurar el servidor de la zona filla
+En el primer servidor es reutilitza la zona primària de la píndola anterior. Es comprova que el SOA i l'NS fan referència a `dns1.nomcognom.netsx.es.` i que hi ha un A per a `dns1` amb la IP interna `192.168.0.1`. L'A de `www` continua apuntant al web de proves.
 
-En el segon servidor s'instal·len BIND i les ferramentes:
-
-```bash
-sudo apt update
-sudo apt install bind9 bind9-utils dnsutils
-```
-
-En el bloc `options` existent de `/etc/bind/named.conf.options`, s'estableixen permisos per al laboratori:
-
-```bind
-recursion no;
-allow-query { localhost; 192.168.0.0/24; };
-allow-transfer { none; };
-```
-
-Aquest servidor serà autoritatiu de la zona filla. No necessita resoldre altres dominis per als clients. La configuració DNS del seu sistema operatiu és una qüestió separada.
-
-En `/etc/bind/named.conf.local` s'afig:
-
-```bind
-zone "ext.aula.internal" {
-    type primary;
-    file "/etc/bind/db.ext.aula.internal";
-    allow-update { none; };
-};
-```
-
-Contingut de `/etc/bind/db.ext.aula.internal`:
+Per practicar també el correu, s'afigen aquests registres al fitxer de la zona filla. L'adreça d'exemple ha d'estar disponible en el rang assignat.
 
 ```dns
-$ORIGIN ext.aula.internal.
-$TTL 300
-@ IN SOA dns1.ext.aula.internal. admin.aula.internal. (
-    2026111101 ; serial
-    3600       ; refresh
-    600        ; retry
-    604800     ; expire
-    300        ; negative cache minimum
-)
-     IN NS    dns1.ext.aula.internal.
-dns1 IN A     192.168.0.2
-www  IN A     192.168.0.250
-mail IN A     192.168.0.251
-@    IN MX    10 mail.ext.aula.internal.
+mail IN A  192.168.0.251
+@    IN MX 10 mail.nomcognom.netsx.es.
 ```
 
-S'ha d'adaptar la sèrie a una versió superior a la que ja existisca, validar i recarregar:
+S'afig el PTR corresponent a la zona inversa existent del servidor fill i s'incrementa la sèrie dels fitxers modificats.
+
+```dns
+251 IN PTR mail.nomcognom.netsx.es.
+```
 
 ```bash
 sudo named-checkconf
-sudo named-checkzone ext.aula.internal /etc/bind/db.ext.aula.internal
-sudo systemctl restart bind9
-sudo systemctl status bind9 --no-pager
-```
-
-Si s'utilitza UFW, s'autoritza el DNS des de la xarxa del laboratori:
-
-```bash
-sudo ufw allow from 192.168.0.0/24 to any port 53 proto udp
-sudo ufw allow from 192.168.0.0/24 to any port 53 proto tcp
-sudo ufw status
-```
-
-S'han de conservar les regles d'administració remota existents. No cal desactivar i reactivar el tallafoc per a cada canvi.
-
-## 3. Delegar des del servidor pare
-
-La zona `aula.internal` ja ha d'estar configurada en el primer servidor. **S'afigen** aquestes línies al seu fitxer de zona directa, mantenint la resta de registres:
-
-```dns
-ext.aula.internal.      IN NS dns1.ext.aula.internal.
-dns1.ext.aula.internal. IN A  192.168.0.2
-```
-
-El primer registre és la delegació. El segon és el glue que permet localitzar el servidor perquè el seu nom està dins de la subzona delegada. Cal incrementar la sèrie del SOA del pare.
-
-**No es declara `ext.aula.internal` com a `type forward` per fer aquesta delegació.** Un reenviament condicional és un mecanisme diferent i podria ocultar que falten els NS del pare.
-
-Perquè els clients puguen consultar el pare com a resolutor, les opcions del primer servidor han de permetre recursió només des de la xarxa autoritzada. Exemple de fragments dins del bloc `options`:
-
-```bind
-recursion yes;
-allow-query { localhost; 192.168.0.0/24; };
-allow-recursion { localhost; 192.168.0.0/24; };
-allow-query-cache { localhost; 192.168.0.0/24; };
-allow-transfer { none; };
-```
-
-La disponibilitat de resolució d'altres dominis dependrà també de l'eixida de xarxa i de la configuració general. No s'ha de traslladar aquesta recursió privada al servidor públic d'AWS sense limitar-ne l'accés.
-
-Es valida el fitxer del pare amb el nom que tinga en la instal·lació. Si s'ha seguit la guia anterior:
-
-```bash
-sudo named-checkconf
-sudo named-checkzone aula.internal /etc/bind/forward.aula.internal
+sudo named-checkzone nomcognom.netsx.es /etc/bind/forward.nomcognom.netsx.es
+sudo named-checkzone 0.168.192.in-addr.arpa /etc/bind/reverse.nomcognom.netsx.es
 sudo systemctl reload bind9
 ```
 
-## 4. Administrar la zona inversa compartida
+## 3. Configurar el pare de laboratori
 
-La delegació directa no delega el rang IP. En aquest exemple els dos servidors estan dins del mateix `/24`. Es manté una sola zona inversa `0.168.192.in-addr.arpa`, administrada pel servidor pare, i s'hi afigen els PTR necessaris:
+En el segon servidor s'instal·len `bind9`, `bind9-utils` i `dnsutils`. S'apliquen les [ACL del laboratori](../README.md) per limitar consultes i recursió a la xarxa interna. Es mantenen els reenviadors generals si es necessiten per a altres dominis. La directiva `forwarders { };` en la zona del pare fa que BIND seguisca la delegació de laboratori dins de `netsx.es`.
+
+En el bloc `options` del pare de laboratori, s'afig aquesta excepció DNSSEC perquè l'assaig utilitza una còpia local sense signar d'un domini públic. La validació continua activa per a la resta de dominis.
+
+```bind
+validate-except { "netsx.es"; };
+```
+
+En `/etc/bind/named.conf.local` es declara la zona del pare:
+
+```bind
+zone "netsx.es" {
+    type primary;
+    file "/etc/bind/db.netsx.es";
+    allow-update { none; };
+    forwarders { };
+};
+```
+
+En `/etc/bind/db.netsx.es`:
 
 ```dns
-2   IN PTR dns1.ext.aula.internal.
-250 IN PTR www.ext.aula.internal.
-251 IN PTR mail.ext.aula.internal.
+$ORIGIN netsx.es.
+$TTL 300
+@ IN SOA ns-aula.netsx.es. hostmaster.netsx.es. (
+    1 3600 600 604800 300
+)
+          IN NS ns-aula.netsx.es.
+ns-aula   IN A  192.168.0.2
+
+nomcognom.netsx.es.      IN NS dns1.nomcognom.netsx.es.
+dns1.nomcognom.netsx.es. IN A  192.168.0.1
 ```
 
-Si ja existeixen PTR per a aquestes IP, s'han de revisar i actualitzar amb coherència. No s'han de deixar registres contradictoris heretats de l'exemple anterior. S'incrementa la sèrie de la zona inversa, es valida i es recarrega.
-
-No s'ha de crear una segona còpia primària independent del mateix `/24` en el fill. Si es vol replicació, cal una zona secundària; si es vol delegació inversa, cal un disseny explícit del rang. En AWS, la inversa pública depén del proveïdor de la IP.
-
-## 5. Verificar cada part
-
-Des d'un client del laboratori:
+L'NS delega la zona personal. L'A que l'acompanya és el **glue** i coincideix amb l'A autoritatiu de `dns1` en el fill. El pare delega amb registres del fitxer de zona. Un reenviament condicional `type forward` només configuraria el comportament d'un resolutor concret.
 
 ```bash
-# Autoritat del fill: s'espera resposta amb aa.
-dig @192.168.0.2 ext.aula.internal SOA +norecurse
-dig @192.168.0.2 www.ext.aula.internal A +norecurse
-
-# Delegació del pare: revisar AUTHORITY i ADDITIONAL.
-dig @192.168.0.1 www.ext.aula.internal A +norecurse
-
-# Resolució completa mitjançant el DNS dels clients.
-dig @192.168.0.1 www.ext.aula.internal A
-dig @192.168.0.1 ext.aula.internal MX
-
-# Transport TCP i zona inversa.
-dig @192.168.0.2 www.ext.aula.internal A +tcp +norecurse
-dig @192.168.0.1 -x 192.168.0.250
+sudo named-checkconf
+sudo named-checkzone netsx.es /etc/bind/db.netsx.es
+sudo systemctl reload bind9
 ```
 
-Es guarden les ordres i les respostes completes, amb una explicació de què acredita cada prova. `+trace` des de l'arrel pública no pot descobrir una zona privada del laboratori com `aula.internal`.
+Si hi ha tallafoc, s'autoritza UDP/53 i TCP/53 des del rang de laboratori en els dos servidors. Cal que el pare puga consultar el fill. La zona inversa es manté en un únic servidor i es prova directament contra `192.168.0.1`.
 
-## 6. Traslladar el concepte a netsx.es
+## 4. Verificar abans i després de configurar el pare
 
-En la [pràctica d'AWS](../practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md), el pare és `netsx.es` i el fill és `nomcognom.netsx.es`. El professorat publica NS i glue al pare, i l'alumne administra el fill. Els registres anunciats a Internet han d'utilitzar les IP públiques adequades. La [guia de DNS i HTTPS](../fonaments/netsx-es-i-https.md) connecta la delegació amb Let's Encrypt.
+Primer es comprova l'autoritat del fill des d'un client, encara que el pare no estiga configurat:
 
-!!! warning "Atenció"
+```bash
+dig @192.168.0.1 nomcognom.netsx.es. SOA +norecurse
+dig @192.168.0.1 nomcognom.netsx.es. NS +norecurse
+dig @192.168.0.1 www.nomcognom.netsx.es. A +norecurse
+dig @192.168.0.1 www.nomcognom.netsx.es. A +tcp +norecurse
+dig @192.168.0.1 -x 192.168.0.251 +norecurse
+```
 
-    Si una consulta al DNS públic falla des de la xarxa de Conselleria, s'ha de repetir directament des d'una instància Ubuntu/Linux d'AWS. Les proves de la zona privada de VirtualBox es fan en la xarxa privada que hi té accés: AWS no pot consultar les IP privades del laboratori sense connectivitat específica. Cal documentar l'origen i seguir el [diagnòstic ordenat](../fonaments/diagnostic-dns.md).
+Es comprova que hi ha `aa` i que els registres són els esperats. Després de carregar la zona pare, es fa la consulta sense recursió abans de les consultes recursives, per observar la referència del pare amb la memòria cau buida. Si ja s'ha fet la prova recursiva, es pot buidar la cau del pare de laboratori amb `sudo rndc flush`.
 
+```bash
+# Referència del pare: NS en AUTHORITY i glue en ADDITIONAL.
+dig @192.168.0.2 www.nomcognom.netsx.es. A +norecurse
 
-**Referències:** [BIND ARM](https://bind9.readthedocs.io/en/stable/), [RFC 1034](https://www.rfc-editor.org/rfc/rfc1034) i [requisits de glue](https://www.rfc-editor.org/rfc/rfc9471.html).
+# Resolució final: l'A del web i l'MX de la zona filla.
+dig @192.168.0.2 www.nomcognom.netsx.es. A
+dig @192.168.0.2 nomcognom.netsx.es. MX
+
+# Amb 192.168.0.2 com a DNS del client.
+dig www.nomcognom.netsx.es. A
+```
+
+`dig +trace` des de l'arrel pública es reserva per a la fase pública. L'assaig local es verifica consultant explícitament els dos servidors privats i el resolutor del client.
+
+## 5. Reutilitzar la zona en AWS
+
+En la [pràctica d'AWS](../practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md) es conserva `nomcognom.netsx.es`, el NS `dns1.nomcognom.netsx.es` i el nom `www.nomcognom.netsx.es`. Es prepara la versió pública de la zona filla amb les IP públiques dels serveis que s'han de publicar i amb la recursió pública desactivada. El professorat publica el NS i el glue en el pare públic després de rebre les evidències d'autoritat per UDP i TCP.
+
+[Zones, delegació i glue](../fonaments/delegacio-i-glue.md) · [BIND ARM](https://bind9.readthedocs.io/en/stable/) · [RFC 9471](https://www.rfc-editor.org/rfc/rfc9471.html)

@@ -112,12 +112,12 @@ En una zona privada `0.168.192.in-addr.arpa`, un fragment seria:
 ```dns
 $ORIGIN 0.168.192.in-addr.arpa.
 $TTL 300
-@ IN SOA dns1.aula.internal. admin.aula.internal. (
+@ IN SOA dns1.nomcognom.netsx.es. admin.nomcognom.netsx.es. (
     2026111101 3600 600 604800 300
 )
-  IN NS dns1.aula.internal.
-1   IN PTR dns1.aula.internal.
-200 IN PTR intranet.aula.internal.
+  IN NS dns1.nomcognom.netsx.es.
+1   IN PTR dns1.nomcognom.netsx.es.
+200 IN PTR intranet.nomcognom.netsx.es.
 ```
 
 Les dues zones, directa i inversa, s'administren per separat. Afegir un A no obliga el servidor a crear un PTR. Diversos noms poden compartir IP i el PTR no ha de retornar tots els noms que apunten a eixa IP.

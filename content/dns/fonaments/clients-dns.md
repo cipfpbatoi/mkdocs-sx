@@ -9,7 +9,7 @@ description: "Com consulten DNS les aplicacions i com es comprova el client en L
 
 En configurar el DNS d'una interfície es decideix **a quin resolutor es demanarà ajuda**. En configurar una zona s'estableixen **les dades que un servidor publica**. Són operacions diferents: instal·lar BIND no fa que tots els equips de la xarxa l'utilitzen automàticament.
 
-El resolutor es pot rebre per DHCP o configurar manualment. En el laboratori, si el client ha de resoldre `aula.internal`, ha de consultar un servidor que conega eixa zona. Un DNS públic no coneix les zones privades creades únicament dins de VirtualBox.
+El resolutor es pot rebre per DHCP o configurar manualment. En el laboratori, si el client ha de resoldre `nomcognom.netsx.es`, ha de consultar un servidor que conega eixa zona. Abans de la delegació pública, el client ha d'usar el DNS de l'alumne o el pare de proves de VirtualBox, segons la fase de la pràctica.
 
 La passarel·la per defecte i el servidor DNS també tenen funcions distintes. La primera transporta paquets cap a altres xarxes; el segon respon consultes de noms. Poden compartir IP perquè s'executen en el mateix equip, però no són el mateix servei.
 
@@ -36,12 +36,12 @@ L'ordre exacte depén del sistema i de la configuració. Una aplicació que usa 
 En Linux, `/etc/hosts` permet associar una IP a un nom i àlies locals. En Windows, el fitxer és `C:\Windows\System32\drivers\etc\hosts`.
 
 ```text
-192.168.0.200 intranet.aula.internal intranet
+192.168.0.200 intranet.nomcognom.netsx.es intranet
 ```
 
 És útil per a una prova controlada, però pot amagar un error de DNS. L'equip on s'ha editat pot obrir el web i la resta no. Tampoc publica una delegació ni és visible per als servidors de Let's Encrypt.
 
-Un **sufix de cerca** permet ampliar noms curts. Amb `aula.internal` com a domini de cerca, `intranet` pot acabar consultant `intranet.aula.internal`. Per a proves precises s'utilitzen noms complets, amb punt final quan es vulga evitar tota ampliació.
+Un **sufix de cerca** permet ampliar noms curts. Amb `nomcognom.netsx.es` com a domini de cerca, `intranet` pot acabar consultant `intranet.nomcognom.netsx.es`. Per a proves precises s'utilitzen noms complets, amb punt final quan es vulga evitar tota ampliació.
 
 ## 5.4. Linux actual
 
@@ -49,10 +49,10 @@ En sistemes amb `systemd-resolved`, `127.0.0.53` és habitualment el resolutor i
 
 ```bash
 resolvectl status
-resolvectl query intranet.aula.internal
+resolvectl query intranet.nomcognom.netsx.es
 readlink -f /etc/resolv.conf
 cat /etc/resolv.conf
-getent ahosts intranet.aula.internal
+getent ahosts intranet.nomcognom.netsx.es
 ```
 
 `getent` permet observar la resolució del sistema. La línia `hosts:` de `/etc/nsswitch.conf` indica els mecanismes que consulta el sistema i el seu ordre; `/etc/host.conf` no és una guia suficient per a entendre un Linux actual.
@@ -68,7 +68,7 @@ En Ubuntu Server amb Netplan, la configuració persistent s'integra en el fitxer
 ```yaml
 nameservers:
   addresses: [192.168.0.1]
-  search: [aula.internal]
+  search: [nomcognom.netsx.es]
 ```
 
 Aquest fragment **no és un fitxer Netplan complet**. S'ha de situar dins de la interfície corresponent i coordinar-lo amb el DNS rebut per DHCP i el gestor de xarxa. No s'ha d'esborrar la configuració de xarxa d'una instància remota per copiar-lo.
@@ -80,9 +80,9 @@ Editar `/etc/resolv.conf` directament sovint només produeix un canvi temporal p
 ```powershell
 ipconfig /all
 Get-DnsClientServerAddress
-Resolve-DnsName intranet.aula.internal
-Resolve-DnsName intranet.aula.internal -Server 192.168.0.1 -Type A
-nslookup intranet.aula.internal 192.168.0.1
+Resolve-DnsName intranet.nomcognom.netsx.es
+Resolve-DnsName intranet.nomcognom.netsx.es -Server 192.168.0.1 -Type A
+nslookup intranet.nomcognom.netsx.es 192.168.0.1
 ```
 
 S'ha de revisar la interfície activa, els DNS assignats i el sufix de cerca. `ipconfig /displaydns` mostra la memòria cau local i `ipconfig /flushdns` la buida; no esborra dades de la zona ni força Internet a refrescar-les.

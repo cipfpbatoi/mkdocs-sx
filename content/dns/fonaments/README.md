@@ -7,7 +7,7 @@ description: "Fonaments del DNS: dels noms de domini a una subzona pública amb 
 
 El **DNS (Domain Name System)** permet consultar informació associada a noms de domini. El cas més conegut és obtindre una adreça IP a partir d'un nom, però també permet localitzar servidors de correu, identificar servidors autoritatius o publicar dades de verificació.
 
-En aquesta unitat s'estudia com es resol un nom, qui administra la informació i com es comprova si una configuració funciona. El recorregut acaba en un cas real: administrar `nomcognom.netsx.es`, delegat pel centre, i publicar un web amb HTTPS i un certificat de Let's Encrypt.
+En aquesta unitat s'estudia com es resol un nom, qui administra la informació i com es comprova si una configuració funciona. Les pràctiques comencen amb la zona personal `nomcognom.netsx.es` en VirtualBox. Primer se'n prova l'autoritat i després s'assaja la delegació des d'un pare `netsx.es` de laboratori. Amb el mateix nom, l'activitat d'AWS prepara la delegació pública del centre i la publicació d'un web amb HTTPS i un certificat de Let's Encrypt.
 
 ## Itinerari de lectura
 

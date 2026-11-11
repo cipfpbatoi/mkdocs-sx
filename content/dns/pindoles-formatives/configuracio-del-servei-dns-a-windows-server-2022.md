@@ -15,142 +15,51 @@ Partim d'una màquina virtual, amb un sistema operatiu basat a Windows Server 20
 
 <figure><img src="../assets/image (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
 
-* [ ] Instal·lació del servei DNS&#x20;
+## 1. Instal·lar el rol DNS
 
-Instal·lem el servei DNS a Windows, fent servir l'assistent de l'administrador del servidor, accedint a l'opció Administrar --> Agregar rols i característiques.
+En l'Administrador del servidor, s'obri **Administrar → Afegir rols i característiques**, se selecciona el servidor i s'instal·la el rol **Servidor DNS** amb les ferramentes d'administració. Després s'obri **Ferramentes → DNS**.
 
-<figure><img src="../assets/image (29).png" alt=""><figcaption><p>Administrador del servidor.</p></figcaption></figure>
+<figure><img src="../assets/image (33).png" alt="Selecció del rol DNS"><figcaption><p>Selecció del rol DNS a l'assistent.</p></figcaption></figure>
 
-A l'assistent, avançarem pel mateix, seleccionant les opcions que veiem a les següents captures:&#x20;
+La interfície interna del servidor té IP fixa. En aquesta guia s'utilitza `192.168.0.1` en la xarxa `192.168.0.0/24`. S'adapten les IP al rang assignat. Si també s'utilitza el servidor Ubuntu, els dos exemples amb `.1` s'executen en xarxes internes separades o amb un servidor actiu cada vegada.
 
-<figure><img src="../assets/image (30).png" alt=""><figcaption><p>Inici de l'assistent per a agregar rols i característiques.</p></figcaption></figure>
+## 2. Crear la zona directa
 
-<figure><img src="../assets/image (31).png" alt=""><figcaption><p>Selecció del tipus d'instal·lació basada en característiques o rols.</p></figcaption></figure>
+En **Zones de cerca directa → Zona nova**, es crea una **zona principal** basada en fitxer, amb el nom **`nomcognom.netsx.es`**, i s'opta per no permetre actualitzacions dinàmiques. Es reemplaça `nomcognom` pel nom i primer cognom assignats, en minúscules, sense espais ni accents.
 
-<figure><img src="../assets/image (32).png" alt=""><figcaption><p>Selecció del servidor.</p></figcaption></figure>
+En la zona nova, s'afigen els registres **Host nou (A o AAAA)** següents, de tipus **A**:
 
-<figure><img src="../assets/image (33).png" alt=""><figcaption><p>Selecció del servei a instal·lar.</p></figcaption></figure>
+| Nom en l'assistent | Adreça de l'exemple | Funció |
+| --- | --- | --- |
+| `dns1` | `192.168.0.1` | Servidor autoritatiu. |
+| `gateway` | `192.168.0.1` | Porta d'enllaç, si correspon al mateix equip. |
+| `intranet` | `192.168.0.200` | Servei intern. |
+| `impressora` | `192.168.0.250` | Impressora de xarxa. |
+| `www` | `192.168.0.200` | Nom del web que es reutilitzarà en AWS. |
 
-<figure><img src="../assets/image (34).png" alt=""><figcaption><p>Selecció de requisits necessaris per dur a terme la instal·lació</p></figcaption></figure>
+En **Propietats** de la zona, s'actualitzen **SOA** i **Servidors de noms** perquè el servidor primari del SOA i el NS apunten a `dns1.nomcognom.netsx.es.`. Cal substituir el NS inicial que crea l'assistent si conté el nom local de Windows. Es comprova que l'A de `dns1` apunta a la interfície interna. En un laboratori sense secundaris, es desactiven les transferències de zona.
 
-<figure><img src="../assets/image (35).png" alt=""><figcaption><p>Continuación de la selecció de rols.</p></figcaption></figure>
+## 3. Crear la zona inversa i configurar els reenviadors
 
-<figure><img src="../assets/image (36).png" alt=""><figcaption><p>Revisió de les característiques del servidor.</p></figcaption></figure>
+En **Zones de cerca inversa → Zona nova**, es crea una **zona principal IPv4**, sense actualitzacions dinàmiques, amb l'identificador de xarxa `192.168.0` per al `/24` d'exemple. S'afigen PTR per a `.1`, `.200` i `.250` amb els noms complets de `dns1`, `intranet` i `impressora`, respectivament. Si `www` i `intranet` comparteixen IP, s'utilitza `intranet` com a nom principal del PTR.
 
-<figure><img src="../assets/image (37).png" alt=""><figcaption><p>Confirmació de la selecció del servei DNS.</p></figcaption></figure>
+En **Propietats del servidor → Reenviadors**, es configuren els resolutors autoritzats per a consultes externes. En **Interfícies**, es limita l'escolta DNS a la IP interna del servidor. Si el tallafoc filtra les consultes de l'aula, cal permetre UDP/53 i TCP/53 des de la xarxa interna.
 
-<figure><img src="../assets/image (38).png" alt=""><figcaption><p>Confirmació de selecció de reinici automàtic, si cal.</p></figcaption></figure>
+## 4. Comprovar des d'un client
 
-<figure><img src="../assets/image (39).png" alt=""><figcaption><p>Progrés de la instal·lació.</p></figcaption></figure>
+Es configura la IP interna del servidor com a DNS del client. El sufix de cerca `nomcognom.netsx.es` és opcional. Des d'un client Windows, es pot comprovar la configuració amb `ipconfig /all` i fer aquestes proves en PowerShell:
 
-Una volta instal·lat el servei DNS, hem de configurar-lo, a l'opció 'Ferramentes --> DNS' de la finestra d'administració del servidor:
-
-<figure><img src="../assets/image (40).png" alt=""><figcaption><p>Ferramenta de configuració del servei DNS.</p></figcaption></figure>
-
-Ara podem crear una zona de cerca directa, y una de cerca inversa, per configurar les nostres DNS:
-
-<figure><img src="../assets/image (41).png" alt=""><figcaption></figcaption></figure>
-
-<figure><img src="../assets/image (42).png" alt=""><figcaption><p>Assistent per a crear una nova zona.</p></figcaption></figure>
-
-<figure><img src="../assets/image (43).png" alt=""><figcaption><p>Creació d'una zona principal.</p></figcaption></figure>
-
-<figure><img src="../assets/image (44).png" alt=""><figcaption><p>Configuració del nom de la zona</p></figcaption></figure>
-
-<figure><img src="../assets/image (46).png" alt=""><figcaption><p>Creació del fitxer de configuració de zona.</p></figcaption></figure>
-
-<figure><img src="../assets/image (47).png" alt=""><figcaption><p>Configuració per a no permetre les actualitzacions dinàmiques de la zona.</p></figcaption></figure>
-
-<figure><img src="../assets/image (48).png" alt=""><figcaption><p>Revisió de les opcions de la zona.</p></figcaption></figure>
-
-<figure><img src="../assets/image (51).png" alt=""><figcaption><p>Creació de zona inversa de cerca</p></figcaption></figure>
-
-<figure><img src="../assets/image (52).png" alt=""><figcaption><p>Assistent per a nova zona</p></figcaption></figure>
-
-<figure><img src="../assets/image (53).png" alt=""><figcaption><p>Creació d'una zona principal.</p></figcaption></figure>
-
-<figure><img src="../assets/image (54).png" alt=""><figcaption><p>Selecció de zona IPv4</p></figcaption></figure>
-
-<figure><img src="../assets/image (55).png" alt=""><figcaption><p>Configuració de la zona inversa</p></figcaption></figure>
-
-<figure><img src="../assets/image (56).png" alt=""><figcaption><p>Creació del fitxer de zona inversa.</p></figcaption></figure>
-
-<figure><img src="../assets/image (57).png" alt=""><figcaption><p>Configuració per a no permetre les actualitzacions dinàmiques de la zona.</p></figcaption></figure>
-
-<figure><img src="../assets/image (58).png" alt=""><figcaption><p>Finalització de l'assistent de zona inversa</p></figcaption></figure>
-
-
-
-Una volta creada la zona de cerca directa, i la zona de cerca inversa, podem afegir registres DNS al nostre servidor, per exemple, podem afegir un registre per a referenciar la intranet i la impressora de xarxa:
-
-<figure><img src="../assets/image (49).png" alt=""><figcaption><p>Creació d'un nou registre A</p></figcaption></figure>
-
-<figure><img src="../assets/image (50).png" alt=""><figcaption><p>Configuració de la DNS per a la intranet.</p></figcaption></figure>
-
-<figure><img src="../assets/image (59).png" alt=""><figcaption><p>Configuració de la DNS per a la impressora.</p></figcaption></figure>
-
-Podem comprovar la configuració al panel de control del servei DNS:
-
-<figure><img src="../assets/image (60).png" alt=""><figcaption><p>DNS configurades</p></figcaption></figure>
-
-<figure><img src="../assets/image (61).png" alt=""><figcaption><p>Punters de IP a DNS configurades.</p></figcaption></figure>
-
-!!! danger "Perill"
-
-    Per a poder provar el servei DNS configurat, haurem d'engegar un client, i configurar la seua tarjeta de xarxa, indicant que la IP del servei DNS siga la IP de la màquina que acabem de configurar.&#x20;
-
-
-Comprovem la configuració de la xarxa:
-
-```bash
-jorge@sx-cli-jorge-02:~$ nmcli device show enp0s3
-GENERAL.DEVICE:                         enp0s3
-GENERAL.TYPE:                           ethernet
-GENERAL.HWADDR:                         08:00:27:71:FE:BD
-GENERAL.MTU:                            1500
-GENERAL.STATE:                          100 (conectado)
-GENERAL.CONNECTION:                     netplan-enp0s3
-GENERAL.CON-PATH:                       /org/freedesktop/NetworkManager/Acti>
-WIRED-PROPERTIES.CARRIER:               activado
-IP4.ADDRESS[1]:                         192.168.0.151/24
-IP4.GATEWAY:                            192.168.0.1
-IP4.ROUTE[1]:                           dst = 192.168.0.0/24, nh = 0.0.0.0, >
-IP4.ROUTE[2]:                           dst = 0.0.0.0/0, nh = 192.168.0.1, m>
-IP4.DNS[1]:                             192.168.0.1
-IP4.DOMAIN[1]:                          aula.local
-IP6.ADDRESS[1]:                         fe80::a00:27ff:fe71:febd/64
-IP6.GATEWAY:                            --
-IP6.ROUTE[1]:                           dst = fe80::/64, nh = ::, mt = 256
-
+```powershell
+Resolve-DnsName nomcognom.netsx.es. -Type SOA -Server 192.168.0.1 -DnsOnly -NoRecursion
+Resolve-DnsName nomcognom.netsx.es. -Type NS -Server 192.168.0.1 -DnsOnly -NoRecursion
+Resolve-DnsName www.nomcognom.netsx.es. -Type A -Server 192.168.0.1 -DnsOnly -TcpOnly
+nslookup 192.168.0.200 192.168.0.1
+nslookup intranet.nomcognom.netsx.es.
+nslookup www.iana.org.
 ```
 
-A continuació, podem provar les resolucions de noms amb el comandament nslookup:
+Des d'un client Linux, `dig @192.168.0.1 www.nomcognom.netsx.es. A +norecurse` ha de mostrar el registre A i el senyalador `aa`. Per provar el transport TCP, es repeteix amb `+tcp`. La consulta inversa de `192.168.0.200` ha de tornar el FQDN de la intranet.
 
-```bash
-jorge@sx-cli-jorge-01:~$ nslookup intranet.aula.internal
-Server:         127.0.0.53
-Address:        127.0.0.53#53
+Les consultes directes funcionen amb la IP privada de VirtualBox abans de la delegació pública. La pràctica d'AWS reutilitza el nom assignat i publica els registres de servei amb les IP públiques corresponents.
 
-Non-authoritative answer:
-Name:   intranet.aula.internal
-Address: 192.168.0.250
-
-jorge@sx-cli-jorge-01:~$ nslookup impressora.aula.internal
-Server:         127.0.0.53
-Address:        127.0.0.53#53
-
-Non-authoritative answer:
-Name:   impressora.aula.internal
-Address: 192.168.0.251
-
-jorge@sx-cli-jorge-01:~$ nslookup www.google.com
-Server:         127.0.0.53
-Address:        127.0.0.53#53
-
-Non-authoritative answer:
-Name:   www.google.com
-Address: 142.250.200.68
-Name:   www.google.com
-Address: 2a00:1450:4003:80d::2004
-```
-
+[Administració de zones DNS en Windows Server](https://learn.microsoft.com/es-es/windows-server/networking/dns/manage-dns-zones) · [Guia de diagnòstic](../fonaments/diagnostic-dns.md)

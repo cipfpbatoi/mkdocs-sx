@@ -75,26 +75,26 @@ Un servidor que administra la zona filla és **primari de la seua zona**, encara
 
 ## 4.5. Com es demostra la delegació?
 
-En el cas privat del laboratori:
+En VirtualBox, `192.168.0.2` allotja una còpia local de `netsx.es` i delega la mateixa zona personal que més avant es publicarà. El fill és `192.168.0.1`.
 
 ```bash
-# El pare ha de donar una referència cap a ext.aula.internal.
-dig @192.168.0.1 www.ext.aula.internal A +norecurse
+# El pare ha de donar una referència cap a nomcognom.netsx.es.
+dig @192.168.0.2 www.nomcognom.netsx.es A +norecurse
 
 # El fill ha de respondre amb autoritat.
-dig @192.168.0.2 www.ext.aula.internal A +norecurse
+dig @192.168.0.1 www.nomcognom.netsx.es A +norecurse
 
 # El resolutor que usa el client ha d'obtindre la resposta final.
-dig @192.168.0.1 www.ext.aula.internal A
+dig @192.168.0.2 www.nomcognom.netsx.es A
 ```
 
 S'ha d'inspeccionar la resposta completa. En el pare s'esperen els NS de delegació i el glue; en el fill, el registre A i `aa`. El comportament visible del pare pot dependre de dades ja presents en memòria cau; cal contrastar la configuració i l'autoritat, no únicament comptar respostes.
 
-En el cas públic també es comprova el recorregut amb `dig +trace` i un resolutor extern. Fer `dig @IP_DNS_ALUMNE` **evita el descobriment del servidor** i no prova per si sol que la delegació estiga publicada.
+La [píndola de subzona](../pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md) explica com muntar els dos servidors. En el cas públic també es comprova el recorregut amb `dig +trace` i un resolutor extern. Fer `dig @IP_DNS_ALUMNE` **evita el descobriment del servidor** i no prova per si sol que la delegació estiga publicada.
 
 ## 4.6. Delegació inversa i DNSSEC
 
-Delegar `ext.aula.internal` no delega automàticament cap xarxa IP. Si els equips continuen dins del mateix `/24`, la zona inversa pot continuar administrada per un únic servidor, amb PTR cap a noms de les dues zones directes. Duplicar la mateixa zona inversa independentment en dos servidors provoca respostes incoherents. Per a subxarxes menors de `/24` hi ha tècniques específiques, com les descrites en el RFC 2317.
+Delegar `nomcognom.netsx.es` no delega automàticament cap xarxa IP. Si els equips continuen dins del mateix `/24`, la zona inversa pot continuar administrada per un únic servidor, amb PTR cap a noms de les dues zones directes. Duplicar la mateixa zona inversa independentment en dos servidors provoca respostes incoherents. Per a subxarxes menors de `/24` hi ha tècniques específiques, com les descrites en el RFC 2317.
 
 En una zona signada, el registre DS del pare connecta amb la informació DNSSEC del fill. Un DS incorrecte pot fer fallar la validació. No s'ha d'afegir DS com si fora glue, ni desactivar la validació del client com a solució general a un error.
 

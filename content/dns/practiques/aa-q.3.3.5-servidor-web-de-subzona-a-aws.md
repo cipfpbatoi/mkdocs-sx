@@ -16,12 +16,12 @@ Es creen dues instàncies EC2, cadascuna amb l'Elastic IP prevista en el laborat
 
 | Element | Servidor DNS | Servidor web |
 | --- | --- | --- |
-| Nom | `dns1.<nomprimercognom>.netsx.es` | `www.<nomprimercognom>.netsx.es` |
+| Nom | `dns1.nomcognom.netsx.es` | `www.nomcognom.netsx.es` |
 | Sistema i servei | Ubuntu/Debian amb BIND9 o Windows Server amb DNS | Ubuntu/Debian amb Apache/Nginx o Windows Server amb IIS |
 | Servei públic | UDP/53 i TCP/53 | TCP/80 i TCP/443 |
 | Administració | SSH o RDP des de l'origen autoritzat | SSH o RDP des de l'origen autoritzat |
 
-El nom de la subzona s'acorda amb el professorat, utilitzant nom i primer cognom sense espais ni accents. Exemple de convenció: `arturocandela.netsx.es`. Les IP s'han d'obtindre de les instàncies pròpies; no s'han de copiar adreces de captures antigues.
+Es reutilitza la mateixa zona personal provada en [VirtualBox](ud02p03.-configuracio-dun-servidor-dns-de-subzona-amb-linux.md). En els exemples es reemplaça `nomcognom` pel nom assignat. En el servidor públic es conserven els noms de la zona, del NS i del web, i es publiquen les Elastic IP de les instàncies pròpies.
 
 El servidor DNS ha d'oferir autoritat sobre la subzona i tindre desactivada la recursió pública. La configuració de resolució del sistema operatiu de cada instància és independent de les zones publicades.
 
@@ -42,7 +42,7 @@ S'ha de comprovar també el tallafoc del sistema operatiu. El port 80 ha de ser 
 
 ## 4. Configuració de la zona de l'alumne
 
-La zona primària és `<nomprimercognom>.netsx.es` i ha d'incloure:
+La zona primària és `nomcognom.netsx.es` i ha d'incloure:
 
 - SOA amb dades coherents i sèrie actualitzada.
 - NS amb el nom del servidor DNS de l'alumne.
@@ -67,12 +67,18 @@ flowchart TD
 Primer es valida la configuració i la càrrega de la zona. Des del servidor DNS es consulta la seua IP privada o local. Des de la instància web es consulta la **IP pública del DNS**:
 
 ```text
-dig @<IP_PRIVADA_DNS> <nomprimercognom>.netsx.es SOA +norecurse
-dig @<IP_PUBLICA_DNS> www.<nomprimercognom>.netsx.es A +norecurse
-dig @<IP_PUBLICA_DNS> www.<nomprimercognom>.netsx.es A +tcp +norecurse
+dig @<IP_PRIVADA_DNS> nomcognom.netsx.es SOA +norecurse
+dig @<IP_PUBLICA_DNS> www.nomcognom.netsx.es A +norecurse
+dig @<IP_PUBLICA_DNS> www.nomcognom.netsx.es A +tcp +norecurse
 ```
 
-Els marcadors entre `< >` s'han de substituir abans d'executar les ordres; s'hi mostren per descriure els paràmetres. Cal acreditar `NOERROR`, `aa` i la IP esperada. Per comprovar UDP sense canvi automàtic a TCP, es pot utilitzar `+notcp +ignore`.
+Abans d'executar les ordres, es substitueixen `nomcognom` i els marcadors d'adreça entre `< >`. Cal acreditar `NOERROR`, `aa` i la IP esperada. Per comprovar UDP sense canvi automàtic a TCP, es pot utilitzar `+notcp +ignore`.
+
+Es pot comprovar també el web pel nom abans de la delegació, forçant temporalment la resolució només per a aquesta petició. Es reemplacen `nomcognom` i `IP_PUBLICA_WEB` pels valors propis.
+
+```bash
+curl --resolve www.nomcognom.netsx.es:80:IP_PUBLICA_WEB -I http://www.nomcognom.netsx.es/
+```
 
 En el servidor web es comprova el servei local i el VirtualHost del nom. La configuració d'Apache, Nginx o IIS ha de correspondre al FQDN que s'utilitzarà, no només a l'accés per IP.
 
@@ -91,11 +97,11 @@ Una tercera instància pot aportar una comprovació independent si el laboratori
 
 Quan el DNS responga correctament des d'una altra instància, s'entreguen al professorat el nom de la subzona, el FQDN del DNS, la seua IP pública, la IP pública del web i les evidències de consulta.
 
-El professorat afegirà en la zona **pare `netsx.es`**:
+El professorat afegirà la delegació en la zona **pare pública `netsx.es`**. Es reutilitza la mateixa estructura de l'assaig de laboratori amb l'Elastic IP del DNS com a glue:
 
 ```text
-<nomprimercognom>.netsx.es.      IN NS dns1.<nomprimercognom>.netsx.es.
-dns1.<nomprimercognom>.netsx.es. IN A  <IP_PUBLICA_DNS>
+nomcognom.netsx.es.      IN NS dns1.nomcognom.netsx.es.
+dns1.nomcognom.netsx.es. IN A  <IP_PUBLICA_DNS>
 ```
 
 La segona línia és el glue necessari perquè el servidor està dins de la zona delegada. Els registres de la zona filla continuen sent responsabilitat de l'alumne. No s'ha de configurar `type forward` com a substitut d'aquesta delegació.
@@ -109,24 +115,24 @@ Si canvia la IP pública del DNS, s'ha d'informar el professorat per actualitzar
 Des d'una instància Linux d'AWS s'han de consultar SOA, NS i A sense forçar directament el servidor autoritatiu de l'alumne, i seguir la delegació:
 
 ```text
-dig <nomprimercognom>.netsx.es NS
-dig <nomprimercognom>.netsx.es SOA
-dig www.<nomprimercognom>.netsx.es A
-dig www.<nomprimercognom>.netsx.es AAAA
-dig +trace www.<nomprimercognom>.netsx.es A
+dig nomcognom.netsx.es NS
+dig nomcognom.netsx.es SOA
+dig www.nomcognom.netsx.es A
+dig www.nomcognom.netsx.es AAAA
+dig +trace www.nomcognom.netsx.es A
 ```
 
 També es contrasta amb un resolutor recursiu extern accessible des d'AWS. S'ha d'identificar en les evidències quin resolutor ha contestat. La falta d'AAAA és normal si no s'ha configurat IPv6.
 
 ### 8.2. HTTP i emissió del certificat
 
-S'ha de comprovar `http://www.<nomprimercognom>.netsx.es` des d'un altre origen. Una vegada funcione DNS i HTTP, s'obté un certificat de Let's Encrypt amb un client ACME adequat al servidor web. El [capítol de DNS i HTTPS](../fonaments/netsx-es-i-https.md) inclou un exemple amb Apache i Certbot.
+S'ha de comprovar `http://www.nomcognom.netsx.es` des d'un altre origen. Una vegada funcione DNS i HTTP, s'obté un certificat de Let's Encrypt amb un client ACME adequat al servidor web. El [capítol de DNS i HTTPS](../fonaments/netsx-es-i-https.md) inclou un exemple amb Apache i Certbot.
 
 La via ordinària de la pràctica és HTTP-01. S'ha d'explicar per què el port 80 ha de ser públic i per què una entrada local en `hosts` no és suficient. Si s'utilitza DNS-01 com a alternativa, s'ha de documentar la publicació del TXT i el procediment de renovació.
 
 ### 8.3. HTTPS i renovació
 
-S'ha de comprovar `https://www.<nomprimercognom>.netsx.es` amb navegador i `curl`, sense ignorar errors de certificat. Cal revisar el nom inclòs en el certificat, l'emissor i la vigència.
+S'ha de comprovar `https://www.nomcognom.netsx.es` amb navegador i `curl`, sense ignorar errors de certificat. Cal revisar el nom inclòs en el certificat, l'emissor i la vigència.
 
 Amb Certbot, s'ha de comprovar la renovació amb `sudo certbot renew --dry-run` i identificar el temporitzador o mecanisme equivalent. Si s'utilitza un altre client, s'aporta la prova equivalent.
 

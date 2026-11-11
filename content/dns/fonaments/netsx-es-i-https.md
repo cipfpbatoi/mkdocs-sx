@@ -7,7 +7,7 @@ description: "Cas docent de delegació de nomcognom.netsx.es en AWS i publicaci�
 
 ## 7.1. El repte del centre
 
-El centre administra `netsx.es`. Cada alumne rep una subzona amb nom i primer cognom, sense espais ni accents, segons el nom acordat: `nomcognom.netsx.es`. L'exemple `arturocandela.netsx.es` il·lustra la convenció; no s'ha de copiar com a domini propi.
+El centre administra `netsx.es`. Cada alumne rep una subzona amb nom i primer cognom, sense espais ni accents, segons el nom acordat: `nomcognom.netsx.es`. S'utilitza el mateix nom que en les [proves de VirtualBox](../pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md). En aquesta fase s'anuncien les adreces públiques dels serveis i el professorat crea la delegació en la zona pública.
 
 L'objectiu és que un client d'Internet descobrisca el DNS de l'alumne, obtinga la IP del seu web i establisca una connexió HTTPS amb un certificat vàlid per al nom utilitzat.
 

@@ -1,405 +1,136 @@
 ---
 icon: material/hammer-wrench
-description: Configuració del servei DNS a Ubuntu Server 24.04
+description: "Zona personal nomcognom.netsx.es amb BIND9 a Ubuntu Server 24.04."
 ---
 
 # ⚒️ Configuració del servei DNS a Ubuntu 24.04
 
-Abans de configurar el servei, cal treballar els [fonaments de DNS](fonaments/README.md), especialment els [registres i fitxers de zona](fonaments/registres-i-zones.md). Per interpretar les proves es disposa de la [guia de diagnòstic](fonaments/diagnostic-dns.md).
+Es configura la zona **`nomcognom.netsx.es`** en una màquina virtual Ubuntu Server 24.04 amb BIND9. En totes les píndoles i pràctiques, `nomcognom` es reemplaça pel nom i primer cognom assignats pel professorat, en minúscules, sense espais ni accents. Es conserva el mateix FQDN al llarg de la unitat.
 
-!!! warning "Atenció"
+En aquesta fase, el servidor és autoritatiu dins de VirtualBox i contesta consultes directes a la seua IP privada. La resolució des d'Internet arribarà després de la delegació pública. Per assajar-la dins de VirtualBox, es pot continuar amb la [píndola de subzona](pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md).
 
-    En proves de DNS públic que fallen des de la xarxa de Conselleria, s'han de repetir les consultes directament des d'una instància Ubuntu/Linux d'AWS i comparar els resultats. Les proves contra IP privades de VirtualBox continuen requerint accés a la xarxa del laboratori.
+## 1. Preparar la màquina i instal·lar BIND
 
-
-Partim d'una màquina virtual, amb un sistema operatiu basat a Ubuntu Server 24.04, i que té configurades dues interfícies de xarxa:
-
-* Una connectada a NAT, perquè el servidor tinga accés a internet i puga instal·lar paquets.
-
-<figure><img src="assets/image (3).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a NAT</p></figcaption></figure>
-
-* Una connectada a la xarxa interna 'aula'.
-
-<figure><img src="assets/image (1).png" alt=""><figcaption><p>Configuració de la interfície de xarxa de VirtualBox a Xarxa interna 'aula'</p></figcaption></figure>
-
-Obrim un terminal, per a fer les operacions de configuració:
-
-* [ ] Instal·lació del servei DNS
-
-Instal·lem el servei DNS a Ubuntu, la seua documentació i el paquet dnsutils.
+El servidor té una interfície en NAT per a l'eixida a Internet i una interfície amb IP fixa en la xarxa interna `aula`, compartida amb els clients. En els exemples es fa servir `192.168.0.1` en la xarxa `192.168.0.0/24`. Cal adaptar les adreces, les ACL i la zona inversa al rang assignat.
 
 ```bash
-profe@sx-srv-profe-dhcp:~$ sudo apt install bind9 bind9utils bind9-doc dnsutils
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-The following additional packages will be installed:
-  bind9-dnsutils bind9-host bind9-libs bind9-utils dns-root-data liblmdb0 libmaxminddb0 libuv1
-Suggested packages:
-  bind-doc resolvconf mmdb-bin
-The following NEW packages will be installed:
-  bind9 bind9-dnsutils bind9-doc bind9-host bind9-libs bind9-utils dns-root-data dnsutils liblmdb0 libmaxminddb0 libuv1
-0 upgraded, 11 newly installed, 0 to remove and 13 not upgraded.
-Need to get 5240 kB of archives.
-After this operation, 19.1 MB of additional disk space will be used.
-Do you want to continue? [Y/n]
+sudo apt update
+sudo apt install bind9 bind9-utils dnsutils
 ```
 
-Recordem els comandaments per arrancar, parar, reiniciar, recarregar la configuració i consultar l'estat del servei, així com el comandament de reinici o recàrrega de configuració:
+En `/etc/bind/named.conf.options` es limita la consulta i la recursió al laboratori. Si ja existeix un bloc `options`, s'edita el mateix bloc.
 
-```bash
-sudo systemctl [enable|start|stop|restart|reload|status] bind9;
-```
+```bind
+acl xarxa-aula { localhost; 192.168.0.0/24; };
 
-També podem fer servir els comandaments corresponents, fent servir systemctl, per activar, arrancar, parar, reiniciar, recarregar la configuració i consultar l'estat del servei:
-
-```bash
-sudo systemctl [enable|start|stop|restart|reload|status] named;
-```
-
-* [ ] Configuració general del servei DNS:
-
-Editem el fitxer **/etc/bind/named.conf.options**. En aquest fitxer podem:
-
-* Habilitar la consulta al teu DNS des de la teva xarxa privada (Com el seu nom indica, només els sistemes de la teva xarxa privada poden consultar DNS sever per nom a traducció IP i viceversa).
-* Configurar el reenviament de consultes (la consulta DNS es reenviarà als reenviadors quan el servidor DNS local no pugui resoldre la consulta).
-* Habilitar la consulta recursiva.
-
-El nostre fitxer quedarà així, si volem configurar el domini aula.internal, al ran de xarxa 192.168.0.0/24:
-
-```bash
-acl aula-internal-network {
-        192.168.0.0/24;
-};
 options {
-        directory "/var/cache/bind";
+    directory "/var/cache/bind";
+    allow-query { xarxa-aula; };
+    allow-recursion { xarxa-aula; };
+    allow-query-cache { xarxa-aula; };
+    allow-transfer { none; };
+    recursion yes;
+    dnssec-validation auto;
 
-        allow-query { localhost; aula-internal-network; };
-        allow-transfer { none; };
-        allow-recursion { localhost; aula-internal-network; };
-        allow-query-cache { localhost; aula-internal-network; };
-
-        // If there is a firewall between you and nameservers you want
-        // to talk to, you may need to fix the firewall to allow multiple
-        // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
-
-        // If your ISP provided one or more IP addresses for stable
-        // nameservers, you probably want to use them as forwarders.
-        // Uncomment the following block, and insert the addresses replacing
-        // the all-0\'s placeholder.
-
-        forwarders {
-                8.8.8.8;
-                8.8.4.4;
-        };
-
-        recursion yes;
-
-        //========================================================================
-        // If BIND logs error messages about the root key being expired,
-        // you will need to update your keys.  See https://www.isc.org/bind-keys
-        //========================================================================
-        dnssec-validation auto;
-
-        listen-on-v6 { none; };
+    // Exemple. Es poden utilitzar els reenviadors autoritzats de l'aula.
+    forwarders { 8.8.8.8; 8.8.4.4; };
 };
 ```
 
-Podem actualitzar el fitxer **/etc/default/named** per indicar que ha d'escolar per defecte les peticions IPv4:
+## 2. Declarar les zones
 
-```bash
-OPTIONS="-u bind -4"
-```
+En `/etc/bind/named.conf.local` es declaren la zona directa i la zona inversa privada. Per a un rang `192.168.XY.0/24`, la zona inversa serà `XY.168.192.in-addr.arpa`.
 
-* [ ] Configuració de una nova zona de domini (aula.internal.):
-
-Editem el fitxer **/etc/bind/named.conf.local**, per indicar les zones o dominis de resolució del servidor. Ací configurarem la zona aula.internal, i la zona inversa 0.168.192, corresponent al rang de xarxa 192.168.0.x.
-
-A les dues zones indicarem si el servei actuarà com a primari (master) o secundari (slave), així com el fitxer de configuració de la resolució:
-
-```bash
-// Configuració per al domini aula.internal
-zone "aula.internal" IN {
-        type master;
-        file "/etc/bind/forward.aula.internal";
-        allow-update { none; };
+```bind
+zone "nomcognom.netsx.es" {
+    type primary;
+    file "/etc/bind/forward.nomcognom.netsx.es";
+    allow-update { none; };
 };
 
-// Configuració per al rang 192.168.0.0/24
-zone "0.168.192.in-addr.arpa" IN {
-        type master;
-        file "/etc/bind/reverse.aula.internal";
-        allow-update { none; };
+zone "0.168.192.in-addr.arpa" {
+    type primary;
+    file "/etc/bind/reverse.nomcognom.netsx.es";
+    allow-update { none; };
 };
 ```
 
-* [ ] Configuració del fitxer de resolució directa:
+### Zona directa
 
-Per a crear la nostra BD de resolució de noms, copiem el fitxer **/etc/bind/db.local** com **/etc/bind/forward.aula.internal**, per fer-lo servir de plantilla, i editem el mateix en les dades del nostre domini:
+Fitxer `/etc/bind/forward.nomcognom.netsx.es`.
 
-```bash
-$TTL    30
-@       IN      SOA     dns1.aula.internal. admin.aula.internal. (
-                                2               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-;
-
-        IN      NS      dns1.aula.internal.
-dns1    IN      A       192.168.0.1
-
-gateway IN      A       192.168.0.1
-dhcp    IN      A       192.168.0.1
-
-intranet        IN      A       192.168.0.200
-impresora       IN      A       192.168.0.250
+```dns
+$ORIGIN nomcognom.netsx.es.
+$TTL 300
+@ IN SOA dns1.nomcognom.netsx.es. hostmaster.nomcognom.netsx.es. (
+    1       ; sèrie
+    3600    ; refresh
+    600     ; retry
+    604800  ; expire
+    300     ; TTL negatiu
+)
+           IN NS dns1.nomcognom.netsx.es.
+dns1       IN A  192.168.0.1
+gateway    IN A  192.168.0.1
+dhcp       IN A  192.168.0.1
+intranet   IN A  192.168.0.200
+impressora IN A  192.168.0.250
+www        IN A  192.168.0.200
 ```
 
-Explicació detallada de la configuració aplicada, directiva a directiva:
+`@` representa l'àpex de la zona. El punt final marca els noms absoluts. `dns1` és el nom que es farà servir per a la delegació i ha de tindre el seu propi A. S'incrementa la sèrie del SOA amb cada canvi. Si la porta d'enllaç o el servidor DHCP és un altre equip, cal adaptar-ne l'adreça. El registre `www` permet preparar el nom del web encara que el servei HTTP encara no estiga instal·lat.
 
-```bash
-$TTL    30
+### Zona inversa
+
+Fitxer `/etc/bind/reverse.nomcognom.netsx.es`.
+
+```dns
+$ORIGIN 0.168.192.in-addr.arpa.
+$TTL 300
+@ IN SOA dns1.nomcognom.netsx.es. hostmaster.nomcognom.netsx.es. (
+    1 3600 600 604800 300
+)
+    IN NS  dns1.nomcognom.netsx.es.
+1   IN PTR dns1.nomcognom.netsx.es.
+200 IN PTR intranet.nomcognom.netsx.es.
+250 IN PTR impressora.nomcognom.netsx.es.
 ```
 
-* TTL (Time To Live): Estableix el temps de vida de les respostes del servidor DNS, per aquesta zona. En aquest cas, 30 segons. Si un client fa una consulta referent a la zona configurada, la resposta té una validesa de 30 segons.
+Cada PTR identifica el nom principal de l'adreça. En l'exemple, `www` i `intranet` comparteixen IP i el PTR apunta a `intranet`. Aquesta zona inversa correspon al rang privat del laboratori.
+
+## 3. Validar i activar
 
 ```bash
-@       IN      SOA     dns1.aula.internal. admin.aula.internal. (       
-                                2               ; Serial                 
-                                604800          ; Refresh                
-                                86400           ; Retry                  
-                                2419200         ; Expire                 
-                                604800 )        ; Negative Cache TTL     
-;   
+sudo named-checkconf
+sudo named-checkzone nomcognom.netsx.es /etc/bind/forward.nomcognom.netsx.es
+sudo named-checkzone 0.168.192.in-addr.arpa /etc/bind/reverse.nomcognom.netsx.es
+sudo systemctl reload bind9
+sudo systemctl status bind9 --no-pager
 ```
 
-* Registre **SOA** (Start of Authority):
-  * L'**@** referència al nivell principal de la zona que estem configurant, indicada al fitxer **/etc/bind/named.conf.local (aula.internal.)**
-  * **SOA** indica que estem configurant el servidor DNS autoritary de la zona.
-  * dns1.aula.internal. indica la DNS del servidor
-  * admin.aula.internal. Indica el correu electrònic de l'administrador (el primer punt substitueix l'@ del correu).
-  * La resta de camps numèrics són:
-    1. **2**: Aquest és el número de sèrie. S’ha d’incrementar quan es modifica la zona perquè els secundaris detecten la nova versió; no buida les memòries cau dels resolutors.
-    2. **604800**: Temps de refresc. Indica cada quants segons han de comprovar altres servidors DNS si hi ha hagut canvis al servidor primari.
-    3. **86400**: Temps de reintent. Indica quant de temps esperar abans de provar de nou si un intent de comunicació falla.
-    4. **2419200**: Temps d'expiració. Indica quant de temps un servidor secundari pot mantenir la seva còpia de la zona sense actualitzar abans de considerar-la obsoleta.
-    5. **604800**: Temps de vida de la memòria cau negativa (Negative Cache TTL). Intervé en el TTL de les respostes negatives: s’utilitza el menor entre aquest valor i el TTL del SOA. No és el TTL per defecte dels altres registres, que defineix $TTL.
+Si UFW està actiu, es permet UDP i TCP al port 53 des de la xarxa interna.
 
 ```bash
-        IN      NS      dns1.aula.internal.                              
-dns1    IN      A       192.168.0.1
+sudo ufw allow from 192.168.0.0/24 to any port 53 proto udp
+sudo ufw allow from 192.168.0.0/24 to any port 53 proto tcp
 ```
 
-* **NS** indica que estem configurant la direcció del servidor DNS del domini.
-* **dns1.aula.internal.** Indica la direcció del servidor.
-* La resolució del nom **'dns1'** de la zona (.aula.internal.) es correspon amb la IP **192.168.0.1.**
+## 4. Comprovar des d'un client
+
+S'indica `192.168.0.1` com a DNS del client, manualment o per DHCP. El sufix de cerca `nomcognom.netsx.es` és opcional i permet consultar noms curts com `intranet`. S'utilitzen noms complets en les evidències.
 
 ```bash
-gateway IN      A       192.168.0.1                                      
-dhcp    IN      A       192.168.0.1                                      
+dig @192.168.0.1 nomcognom.netsx.es. SOA +norecurse
+dig @192.168.0.1 nomcognom.netsx.es. NS +norecurse
+dig @192.168.0.1 www.nomcognom.netsx.es. A +norecurse
+dig @192.168.0.1 www.nomcognom.netsx.es. A +tcp +norecurse
+dig @192.168.0.1 -x 192.168.0.200 +norecurse
+nslookup intranet.nomcognom.netsx.es.
+nslookup www.iana.org.
 ```
 
-* Estem configurant tres registres A, o de resolució de nom a IP, que apunten a la mateixa IP destí. Amb ells hem indicat que:
-  * La resolució del nom **'dns1'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
-  * La resolució del nom **'gateway'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
-  * La resolució del nom **'dhcp'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.1.
+Les consultes directes de les zones locals han de mostrar `aa`. En el cas de `www`, s'espera l'A `192.168.0.200`. La consulta inversa ha de retornar `intranet.nomcognom.netsx.es.`. Les dues últimes ordres comproven el resolutor configurat en el client, amb un nom local i un d'extern. En Ubuntu amb `systemd-resolved`, es pot comprovar el DNS de la interfície amb `resolvectl status`.
 
-```bash
-intranet        IN      A       192.168.0.200                            
-impresora       IN      A       192.168.0.250
-```
+Si falla una consulta, es revisa `sudo journalctl -u bind9 -n 50 --no-pager`. Per exemple, si BIND indica que el servidor de noms de la zona no té cap A o AAAA, cal revisar el registre de `dns1` i els punts finals. Es pot seguir la [guia de diagnòstic](fonaments/diagnostic-dns.md).
 
-* Estem configurant dos registres A, o de resolució de nom a IP, que apunten a dos host de la nostra zona DNS. Amb ells hem indicat que:
-  * La resolució del nom **'intranet'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.200.
-  * La resolució del nom **'impresora'** de la zona (.aula.internal.) es correspon amb la IP 192.168.0.250.
-
-- [ ] Configuració del fitxer de resolució inversa:
-
-Per a crear la nostra BD de resolució inversa d'IP, copiem el fitxer **/etc/bind/db.127** com **/etc/bind/reverse.aula.internal**, per fer-lo servir de plantilla, i editem el mateix en les dades del nostre domini:
-
-```bash
-$TTL    30
-@       IN      SOA     dns1.aula.internal. admin.aula.internal. (
-                                1               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-
-; info del nameserver
-        IN      NS      dns1.aula.internal.
-
-; reverse loockup dns server
-1       IN      PTR     dns1.aula.internal.
-
-; reverse loockup hosts
-200     IN      PTR     intranet.aula.internal.
-250     IN      PTR     impresora.aula.internal.
-```
-
-Explicació detallada de la configuració aplicada, directiva a directiva:
-
-```bash
-$TTL   30
-```
-
-* TTL (Time To Live): Estableix el temps de vida de les respostes del servidor DNS, per aquesta zona. En aquest cas, 30 segons. Si un client fa una consulta referent a la zona configurada, la resposta té una validesa de 30 segons.
-
-```bash
-@       IN      SOA     dns1.aula.internal. admin.aula.internal. (
-                                1               ; Serial
-                                604800          ; Refresh
-                                86400           ; Retry
-                                2419200         ; Expire
-                                604800 )        ; Negative Cache TTL
-```
-
-* Registre **SOA** (Start of Authority):
-  * L'**@** referència al nivell principal de la zona que estem configurant, indicada al fitxer **/etc/bind/named.conf.local (aula.internal.)**
-  * **SOA** indica que estem configurant el servidor DNS autoritary de la zona.
-  * dns1.aula.internal. indica la DNS del servidor
-  * admin.aula.internal. Indica el correu electrònic de l'administrador (el primer punt substitueix l'@ del correu).
-  * La resta de camps numèrics són:
-    1. **1**: Aquest és el número de sèrie. S’ha d’incrementar quan es modifica la zona perquè els secundaris detecten la nova versió; no buida les memòries cau dels resolutors.
-    2. **604800**: Temps de refresc. Indica cada quants segons han de comprovar altres servidors DNS si hi ha hagut canvis al servidor primari.
-    3. **86400**: Temps de reintent. Indica quant de temps esperar abans de provar de nou si un intent de comunicació falla.
-    4. **2419200**: Temps d'expiració. Indica quant de temps un servidor secundari pot mantenir la seva còpia de la zona sense actualitzar abans de considerar-la obsoleta.
-    5. **604800**: Temps de vida de la memòria cau negativa (Negative Cache TTL). Intervé en el TTL de les respostes negatives: s’utilitza el menor entre aquest valor i el TTL del SOA. No és el TTL per defecte dels altres registres, que defineix $TTL.
-
-```bash
-; info del nameserver
-        IN      NS      dns1.aula.internal.
-```
-
-* **@** referència al domini de la zona que estem configurant, **NS** indica que estem configurant la direcció del servidor DNS del domini i **dns1.aula.internal.** indica la dns de resoluició del nameserver.
-* L’adreça de `dns1.aula.internal` es defineix amb A en la zona directa; els PTR d’aquesta zona inversa apunten als noms complets.
-
-```bash
-; reverse loockup dns server
-1       IN      PTR     dns1.aula.internal.
-```
-
-* La IP 1 del rang de xarxa configurat al fitxer de resolució inversa correspon a la DNS dns1.aula.internal.
-
-```bash
-; reverse loockup hosts
-200     IN      PTR     intranet.aula.internal.
-250     IN      PTR     impresora.aula.internal.
-```
-
-* La IP 200 del rang de xarxa configurat al fitxer de resolució inversa correspon a la DNS intranet.aula.internal.
-* La IP 250 del rang de xarxa configurat al fitxer de resolució inversa correspon a la DNS impresora.aula.internal.
-
-Comprovem que no hi ha errors als nostres fitxers de configuració:
-
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo named-checkconf
-```
-
-Engeguem el servei:
-
-```bash
-## Bind9
-profe@sx-srv-profe-dhcp: sudo systemctl restart bind9;
-## named 
-profe@sx-srv-profe-dhcp: sudo systemctl enable named;
-profe@sx-srv-profe-dhcp: sudo systemctl start named;
-profe@sx-srv-profe-dhcp: sudo systemctl status named;
-```
-
-I configurem el tallafoc del servidor perquè habilite les connexions al servei Bind9:
-
-```bash
-profe@sx-srv-profe-dhcp:~$ sudo ufw allow Bind9;
-profe@sx-srv-profe-dhcp:~$ sudo ufw reload;
-profe@sx-srv-profe-dhcp:~$ sudo ufw status;
-```
-
-* [ ] Prova del servei configurat
-
-!!! danger "Perill"
-
-    Per a poder provar el servei DNS configurat, haurem d'engegar un client, i configurar la seua tarjeta de xarxa, indicant que la IP del servei DNS siga la IP de la màquina que acabem de configurar.
-
-    Si els clients reben els paràmetres per DHCP, cal actualitzar el servidor DHCP perquè anuncie el DNS del laboratori i renovar la configuració dels clients.
-
-
-Comprovem la configuració de la xarxa:
-
-```bash
-jorge@sx-cli-jorge-02:~$ nmcli device show enp0s3
-GENERAL.DEVICE:                         enp0s3
-GENERAL.TYPE:                           ethernet
-GENERAL.HWADDR:                         08:00:27:71:FE:BD
-GENERAL.MTU:                            1500
-GENERAL.STATE:                          100 (conectado)
-GENERAL.CONNECTION:                     netplan-enp0s3
-GENERAL.CON-PATH:                       /org/freedesktop/NetworkManager/Acti>
-WIRED-PROPERTIES.CARRIER:               activado
-IP4.ADDRESS[1]:                         192.168.0.151/24
-IP4.GATEWAY:                            192.168.0.1
-IP4.ROUTE[1]:                           dst = 192.168.0.0/24, nh = 0.0.0.0, >
-IP4.ROUTE[2]:                           dst = 0.0.0.0/0, nh = 192.168.0.1, m>
-IP4.DNS[1]:                             192.168.0.1
-IP4.DOMAIN[1]:                          aula.internal
-IP6.ADDRESS[1]:                         fe80::a00:27ff:fe71:febd/64
-IP6.GATEWAY:                            --
-IP6.ROUTE[1]:                           dst = fe80::/64, nh = ::, mt = 256
-
-```
-
-A continuació es mostren consultes amb `nslookup`. També s’ha de contrastar la resposta amb `dig @192.168.0.1 intranet.aula.internal A` i revisar el servidor i el tipus de resposta:
-
-```bash
-jorge@sx-cli-jorge-01:~$ nslookup intranet
-Server:         127.0.0.53
-Address:        127.0.0.53#53
-
-Non-authoritative answer:
-Name:   intranet.aula.internal
-Address: 192.168.0.200
-
-jorge@sx-cli-jorge-01:~$ nslookup impresora
-Server:         127.0.0.53
-Address:        127.0.0.53#53
-
-Non-authoritative answer:
-Name:   impresora.aula.internal
-Address: 192.168.0.250
-
-```
-
-!!! warning "Atenció"
-
-    En el cas de que no funcioni, tracteu de reiniciar el servei bind9, i comproveu l'estat del mateix, per si mostra algún error, com puga ser el següent:
-
-
-<pre class="language-bash"><code class="lang-bash">profe@sx-srv-profe-dhcp:~$ sudo service bind9 restart;
-profe@sx-srv-profe-dhcp:~$ sudo service bind9 status;
-● named.service - BIND Domain Name Server
-     Loaded: loaded (/lib/systemd/system/named.service; enabled; vendor preset: enabled)
-     Active: active (running) since Sun 2023-10-22 14:53:22 UTC; 1s ago
-       Docs: man:named(8)
-    Process: 2180 ExecStart=/usr/sbin/named $OPTIONS (code=exited, status=0/SUCCESS)
-   Main PID: 2181 (named)
-      Tasks: 6 (limit: 4558)
-     Memory: 6.0M
-        CPU: 98ms
-     CGroup: /system.slice/named.service
-             └─2181 /usr/sbin/named -u bind -4
-
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone 0.168.192.in-addr.arpa/IN: loaded serial 1
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone 0.in-addr.arpa/IN: loaded serial 1
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone aula.internal/IN: <a data-footnote-ref href="#user-content-fn-1">NS 'dns1.aula.internal' has no address records (A or AAAA)</a>
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone aula.internal/IN: not loaded due to errors.
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone 255.in-addr.arpa/IN: loaded serial 1
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone localhost/IN: loaded serial 2
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: zone 127.in-addr.arpa/IN: loaded serial 1
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: all zones loaded
-Oct 22 14:53:22 sx-srv-profe-dhcp systemd[1]: Started BIND Domain Name Server.
-Oct 22 14:53:22 sx-srv-profe-dhcp named[2181]: running
-</code></pre>
-
-[^1]: Error en la configuració del registre dns1.aula.internal
+[Manual de BIND9](https://bind9.readthedocs.io/en/stable/) · [Registres i fitxers de zona](fonaments/registres-i-zones.md)
