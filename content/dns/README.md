@@ -15,41 +15,53 @@ El servidor té una interfície en NAT per a l'eixida a Internet i una interfíc
 
 ```bash
 sudo apt update
-sudo apt install bind9 bind9-utils dnsutils
+sudo apt install bind9 bind9-utils bind9-doc dnsutils
 ```
 
-En `/etc/bind/named.conf.options` es limita la consulta i la recursió al laboratori. Si ja existeix un bloc `options`, s'edita el mateix bloc.
+En `/etc/bind/named.conf.options` es configura l'ACL de la xarxa interna, el reenviament i la recursió. S'edita el bloc `options` existent i es declara l'ACL fora del bloc. Si la xarxa assignada és diferent, es canvia el rang dins de l'ACL.
 
 ```bind
-acl xarxa-aula { localhost; 192.168.0.0/24; };
+acl aula-internal-network {
+    192.168.0.0/24;
+};
 
 options {
     directory "/var/cache/bind";
-    allow-query { xarxa-aula; };
-    allow-recursion { xarxa-aula; };
-    allow-query-cache { xarxa-aula; };
-    allow-transfer { none; };
+    allow-query { localhost; aula-internal-network; };
+    allow-transfer { localhost; };
+    forwarders {
+        8.8.8.8;
+        8.8.4.4;
+    };
     recursion yes;
-    dnssec-validation auto;
-
-    // Exemple. Es poden utilitzar els reenviadors autoritzats de l'aula.
-    forwarders { 8.8.8.8; 8.8.4.4; };
+    dnssec-validation no;
+    listen-on-v6 { any; };
 };
 ```
+
+`allow-query` permet consultes des del servidor mateix i dels equips de la xarxa de l'aula. `allow-transfer` limita les transferències de zona a `localhost`. Els reenviadors s'utilitzen per a les consultes recursives que el servidor ha d'enviar a l'exterior.
+
+Per executar BIND en mode IPv4, es deixa la línia `OPTIONS` d'`/etc/default/named` com es mostra a continuació.
+
+```bash
+OPTIONS="-u bind -4"
+```
+
+L'opció `-4` s'aplica en reiniciar el servei. La directiva `listen-on-v6` es conserva en el fitxer d'opcions, com en la guia de referència.
 
 ## 2. Declarar les zones
 
 En `/etc/bind/named.conf.local` es declaren la zona directa i la zona inversa privada. Per a un rang `192.168.XY.0/24`, la zona inversa serà `XY.168.192.in-addr.arpa`.
 
 ```bind
-zone "nomcognom.netsx.es" {
-    type primary;
+zone "nomcognom.netsx.es" IN {
+    type master;
     file "/etc/bind/forward.nomcognom.netsx.es";
     allow-update { none; };
 };
 
-zone "0.168.192.in-addr.arpa" {
-    type primary;
+zone "0.168.192.in-addr.arpa" IN {
+    type master;
     file "/etc/bind/reverse.nomcognom.netsx.es";
     allow-update { none; };
 };
@@ -57,17 +69,17 @@ zone "0.168.192.in-addr.arpa" {
 
 ### Zona directa
 
-Fitxer `/etc/bind/forward.nomcognom.netsx.es`.
+Es pot copiar `/etc/bind/db.local` com a plantilla per al fitxer `/etc/bind/forward.nomcognom.netsx.es` i substituir-ne el contingut pel bloc següent.
 
 ```dns
 $ORIGIN nomcognom.netsx.es.
-$TTL 300
-@ IN SOA dns1.nomcognom.netsx.es. hostmaster.nomcognom.netsx.es. (
-    1       ; sèrie
-    3600    ; refresh
-    600     ; retry
-    604800  ; expire
-    300     ; TTL negatiu
+$TTL 30
+@ IN SOA dns1.nomcognom.netsx.es. admin.nomcognom.netsx.es. (
+    2        ; sèrie
+    604800   ; refresh
+    86400    ; retry
+    2419200  ; expire
+    604800   ; TTL negatiu
 )
            IN NS dns1.nomcognom.netsx.es.
 dns1       IN A  192.168.0.1
@@ -82,13 +94,13 @@ www        IN A  192.168.0.200
 
 ### Zona inversa
 
-Fitxer `/etc/bind/reverse.nomcognom.netsx.es`.
+Es pot copiar `/etc/bind/db.127` com a plantilla per al fitxer `/etc/bind/reverse.nomcognom.netsx.es` i substituir-ne el contingut pel bloc següent.
 
 ```dns
 $ORIGIN 0.168.192.in-addr.arpa.
-$TTL 300
-@ IN SOA dns1.nomcognom.netsx.es. hostmaster.nomcognom.netsx.es. (
-    1 3600 600 604800 300
+$TTL 30
+@ IN SOA dns1.nomcognom.netsx.es. admin.nomcognom.netsx.es. (
+    1 604800 86400 2419200 604800
 )
     IN NS  dns1.nomcognom.netsx.es.
 1   IN PTR dns1.nomcognom.netsx.es.
@@ -104,15 +116,16 @@ Cada PTR identifica el nom principal de l'adreça. En l'exemple, `www` i `intran
 sudo named-checkconf
 sudo named-checkzone nomcognom.netsx.es /etc/bind/forward.nomcognom.netsx.es
 sudo named-checkzone 0.168.192.in-addr.arpa /etc/bind/reverse.nomcognom.netsx.es
-sudo systemctl reload bind9
-sudo systemctl status bind9 --no-pager
+sudo systemctl enable named
+sudo systemctl restart named
+sudo systemctl status named --no-pager
 ```
 
-Si UFW està actiu, es permet UDP i TCP al port 53 des de la xarxa interna.
+Si UFW està actiu, s'aplica el perfil `Bind9` de la guia de referència perquè el tallafoc permeta UDP i TCP al port 53. L'ACL de BIND continua decidint quins orígens poden consultar el servei.
 
 ```bash
-sudo ufw allow from 192.168.0.0/24 to any port 53 proto udp
-sudo ufw allow from 192.168.0.0/24 to any port 53 proto tcp
+sudo ufw allow Bind9
+sudo ufw status
 ```
 
 ## 4. Comprovar des d'un client
@@ -131,6 +144,46 @@ nslookup www.iana.org.
 
 Les consultes directes de les zones locals han de mostrar `aa`. En el cas de `www`, s'espera l'A `192.168.0.200`. La consulta inversa ha de retornar `intranet.nomcognom.netsx.es.`. Les dues últimes ordres comproven el resolutor configurat en el client, amb un nom local i un d'extern. En Ubuntu amb `systemd-resolved`, es pot comprovar el DNS de la interfície amb `resolvectl status`.
 
-Si falla una consulta, es revisa `sudo journalctl -u bind9 -n 50 --no-pager`. Per exemple, si BIND indica que el servidor de noms de la zona no té cap A o AAAA, cal revisar el registre de `dns1` i els punts finals. Es pot seguir la [guia de diagnòstic](fonaments/diagnostic-dns.md).
+Si falla una consulta, es revisa `sudo journalctl -u named -n 50 --no-pager`. Per exemple, si BIND indica que el servidor de noms de la zona no té cap A o AAAA, cal revisar el registre de `dns1` i els punts finals. Es pot seguir la [guia de diagnòstic](fonaments/diagnostic-dns.md).
 
-[Manual de BIND9](https://bind9.readthedocs.io/en/stable/) · [Registres i fitxers de zona](fonaments/registres-i-zones.md)
+## 5. Consultar el servidor des d'Internet
+
+L'ACL `aula-internal-network` només inclou la xarxa privada de l'aula. BIND aplica l'ACL a la IP d'origen que li arriba. Per exemple, si el client ix a Internet per NAT, es fa servir la seua IP pública d'eixida. Si es consulta a través d'un resolutor recursiu, BIND veu la IP del resolutor.
+
+### Prova directa des d'una IP externa
+
+En `/etc/bind/named.conf.local`, s'afig `allow-query` **dins de la zona directa**. Aquesta directiva té prioritat sobre l'`allow-query` general per a les consultes d'eixa zona. En l'exemple es reemplaça `203.0.113.25/32` per la IP d'origen que veu BIND. Es mantenen les entrades de l'aula perquè els seus clients també puguen consultar la zona.
+
+```bind
+zone "nomcognom.netsx.es" IN {
+    type master;
+    file "/etc/bind/forward.nomcognom.netsx.es";
+    allow-update { none; };
+    allow-query { localhost; aula-internal-network; 203.0.113.25/32; };
+};
+```
+
+Si el mateix servidor continua resolent noms externs per als clients de l'aula durant la prova, es poden fixar `allow-recursion { localhost; aula-internal-network; };` i `allow-query-cache { localhost; aula-internal-network; };` en el bloc `options`. La IP externa només s'autoritza en la zona directa.
+
+### Delegació pública en AWS
+
+Per publicar la zona, es canvia l'`allow-query` **de la zona directa** per `allow-query { any; };`. Així poden consultar-la els resolutors d'Internet. En el servidor públic dedicat, es canvia `recursion yes;` per `recursion no;` en `/etc/bind/named.conf.options`. L'ACL general continua aplicant-se a la zona inversa privada si es manté en eixe servidor.
+
+En els dos casos s'ha de permetre el port **53/UDP i 53/TCP** en el tallafoc. En AWS també s'han d'autoritzar en el Security Group del DNS. Si el servidor està darrere d'un NAT, s'han de redirigir els dos protocols fins al servidor. En una prova restringida, si s'havia aplicat una regla general `ufw allow Bind9`, se substitueix per regles per a UDP i TCP que permeten la xarxa de l'aula i l'origen de prova.
+
+Després de validar amb `sudo named-checkconf` i aplicar el canvi amb `sudo systemctl reload named`, es fan les consultes següents des de fora. Es reemplaça `IP_PUBLICA_DNS` per la IP pública del servidor i es comprova que les dues respostes mostren `aa`.
+
+```bash
+dig @IP_PUBLICA_DNS nomcognom.netsx.es. SOA +norecurse +notcp +ignore
+dig @IP_PUBLICA_DNS nomcognom.netsx.es. SOA +norecurse +tcp
+```
+
+Si BIND retorna `REFUSED` en una consulta directa a la zona carregada, es revisa la IP d'origen i l'ACL. Si la consulta expira, es comproven l'adreça, l'escolta del servei i el pas dels dos protocols pel tallafoc i el NAT.
+
+La consulta directa per IP es pot provar abans de delegar. Per resoldre el nom amb un resolutor d'Internet, cal que el professorat publique l'NS i el glue en `netsx.es`. Els registres públics de `dns1` i `www` han de contindre les IP públiques corresponents. Es detalla en la [pràctica de subzona en AWS](practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md).
+
+## Referències
+
+- [Guia de referència de configuració DNS en Ubuntu](https://jlopezedu-informatica.gitbook.io/serveis-en-xarxa/ud02.-dns)
+- [Manual de BIND9 sobre control d'accés, recursió i transferències](https://bind9.readthedocs.io/en/v9.18.33/reference.html#allow-query)
+- [Registres i fitxers de zona](fonaments/registres-i-zones.md)
