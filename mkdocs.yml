@@ -65,7 +65,7 @@ nav:
         - "Accés a Linux i Windows mitjançant un bastió SSH en AWS": "ssh-vnc-rdp/profunditzacio/bastio-ssh-aws.md"
   - "SA04 · DNS":
       - "Fonaments":
-        - "Fonaments del servei DNS": "dns/fonaments/README.md"
+        - "Fonaments del servei DNS": "dns/README.md"
         - "1. Noms, jerarquia i organització": "dns/fonaments/noms-i-jerarquia.md"
         - "2. Resolució, transport i memòria cau": "dns/fonaments/resolucio-i-cache.md"
         - "3. Registres i fitxers de zona": "dns/fonaments/registres-i-zones.md"
@@ -77,14 +77,12 @@ nav:
         - "9. Repàs i autoavaluació": "dns/fonaments/repas.md"
         - "Referències i recursos": "dns/fonaments/referencies.md"
       - "Píndoles formatives":
-        - "Configuració del servei DNS a Ubuntu 24.04": "dns/README.md"
-        - "Configuració del servei DNS a Windows Server 2022": "dns/pindoles-formatives/configuracio-del-servei-dns-a-windows-server-2022.md"
-        - "Configuració de subzona al servei DNS a Ubuntu 24.04": "dns/pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md"
+        - "Configuració del servei DNS a Ubuntu 24.04": "dns/README (1).md"
+        - "Configuració d'una subzona DNS amb Windows Server 2022": "dns/pindoles-formatives/configuracio-del-servei-dns-a-windows-server-2022.md"
+        - "Configuració d'una subzona DNS amb Linux": "dns/pindoles-formatives/configuracio-de-subzona-al-servei-dns-a-ubuntu-24.04.md"
+        - "Web HTTPS amb Apache2 i Certbot": "dns/pindoles-formatives/web-https-amb-apache2-i-certbot.md"
       - "Pràctiques":
-        - "AA-Q.3.3.2 - Configuració d'un servidor DNS Linux": "dns/practiques/ud02p01.-configuracio-dun-servidor-dns-linux.md"
-        - "AA-Q.3.3.3 - Configuració d'un servidor DNS Windows": "dns/practiques/ud02p02.-configuracio-dun-servidor-dns-windows.md"
-        - "AA-Q.3.3.4 - Configuració d'un servidor DNS de subzona amb Linux": "dns/practiques/ud02p03.-configuracio-dun-servidor-dns-de-subzona-amb-linux.md"
-        - "AA-Q.3.3.6 - Servidor Web de Subzona a AWS": "dns/practiques/aa-q.3.3.5-servidor-web-de-subzona-a-aws.md"
+        - "AA-Q.3.3 - Infraestructura DNS pública, subzones i web HTTPS": "dns/practiques/aa-q.3.3-infraestructura-dns-publica-subzones-i-web-https.md"
   - "SA05 · HTTP":
       - "Píndoles formatives":
         - "AF.5.2.x. Apache 2, instal·lat a Ubuntu Server 24.04, desplegat a AWS":

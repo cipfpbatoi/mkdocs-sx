@@ -77,7 +77,9 @@ def extract_ref(ref: str, dest: Path) -> None:
 
 
 # --------------------------------------------------------------- summary ----
-LINK_RE = re.compile(r"^(?P<indent>\s*)[*-] \[(?P<title>.+?)\]\((?P<path>[^)]+)\)")
+LINK_RE = re.compile(
+    r"^(?P<indent>\s*)[*-] \[(?P<title>.+?)\]\((?P<path><[^>]+>|[^)]+)\)"
+)
 HEADING_RE = re.compile(r"^##\s+(?P<title>.+)$")
 TAG_RE = re.compile(r"<[^>]+>")
 
@@ -118,7 +120,10 @@ def parse_summary(text: str):
             if stack:  # fill: hereta la icona del pare si no en té
                 icon = icon or stack[-1][2]
             icon = icon or GROUP_ICONS.get(group) or GROUP_ICONS.get(title.lower())
-            node = {"title": title, "icon": icon, "path": m["path"].strip(), "children": []}
+            path = m["path"].strip()
+            if path.startswith("<") and path.endswith(">"):
+                path = path[1:-1]
+            node = {"title": title, "icon": icon, "path": path, "children": []}
             while stack and stack[-1][0] >= level:
                 stack.pop()
             (stack[-1][1] if stack else groups[-1][1]).append(node)
