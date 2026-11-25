@@ -2,23 +2,22 @@
 
 Web: <https://cipfpbatoi.github.io/mkdocs-sx/>
 
-Els materials s'editen a GitBook, que els sincronitza amb el repositori
-[`arturocandela/gitbook-sx`](https://github.com/arturocandela/gitbook-sx).
-Aquest repositori els converteix a MkDocs (Material) i els publica a GitHub Pages.
+Aquest repositori és la font de veritat dels materials i publica el lloc a
+GitHub Pages. Edita el contingut directament en `content/` i mantín la
+navegació de `mkdocs.yml` actualitzada.
 
-## Incorporar els últims canvis de GitBook
+El repositori [`arturocandela/gitbook-sx`](https://github.com/arturocandela/gitbook-sx)
+és una còpia de seguretat transitòria, prevista per a eliminar-se. Els seus
+canvis es publiquen a GitBook; GitBook ja no és la font dels continguts d'aquest
+projecte. Mantín els canvis compatibles amb aquella còpia mentre siga necessària.
 
-```bash
-git remote add upstream git@github.com:arturocandela/gitbook-sx.git  # només la primera vegada
-git fetch upstream
-python scripts/sync_gitbook.py --ref upstream/main
-mkdocs build --strict
-git add -A && git commit -m "Sincronitza amb GitBook (upstream/main@$(git rev-parse --short upstream/main))"
-```
+## Importació antiga de GitBook
 
-El script regenera els directoris de cada espai dins de `content/` i el bloc
-`nav` de `mkdocs.yml`. **No edites a mà** aquests directoris ni el `nav`: es
-sobreescriuen a cada sincronització. Els canvis de contingut es fan a GitBook.
+`scripts/sync_gitbook.py` es conserva només per a importacions puntuals: esborra
+i regenera els espais marcats amb `.gitbook-space` i la navegació, de manera que
+pot destruir canvis fets ací. No l'executes com a sincronització habitual; si
+cal una importació, revisa abans l'origen i els canvis locals. L'script exigeix
+`--overwrite-local-content` per a confirmar aquesta operació.
 
 ## Previsualització local
 

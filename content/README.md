@@ -65,6 +65,14 @@ de serveis a AWS.
 
     vsftpd i servei FTP de Windows Server: accés anònim i nominal.
 
+-   :material-email-outline:{ .lg .middle } &nbsp; <span class="sx-code">SA07</span>
+
+    **[Correu electrònic i calendari](https://jlopezedu-informatica.gitbook.io/aplicacions-web/correu-electronic-i-calendari)**
+
+    ---
+
+    Correu electrònic i calendari: continguts i activitats.
+
 -   :material-aws:{ .lg .middle } &nbsp; <span class="sx-code">AWS</span>
 
     **[AWS Academy](aws-academy/README.md)**

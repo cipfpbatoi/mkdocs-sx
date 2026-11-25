@@ -9,7 +9,7 @@ site_dir: 'docs'
 # MkDocs no reescriu aquestes rutes: amb URLs de directori es trencarien.
 use_directory_urls: false
 
-# BEGIN nav (generat per scripts/sync_gitbook.py, no editar a mà)
+# BEGIN nav
 nav:
   - Inici: README.md
   - "SA01 · Interconnexió de Xarxes":
@@ -118,6 +118,7 @@ nav:
       - "Pràctiques":
         - "UD05P01.- Configuració d'un servidor FTP amb VSFTPD": "ftp/practiques/ud05p01.-configuracio-dun-servidor-ftp-amb-vsftpd.md"
         - "UD05P02.- Configuració d'un servidor FTP amb Windows Server 2022": "ftp/practiques/ud05p02.-configuracio-dun-servidor-ftp-amb-windows-server-2022.md"
+  - "SA07 · Correu electrònic i calendari": "https://jlopezedu-informatica.gitbook.io/aplicacions-web/correu-electronic-i-calendari"
   - "SAXX · AWS Academy":
       - "Píndoles formatives":
         - "UDXX-01.- Autenticació d'usuari a AWS Academy i accés a la consola d'administració de serveis": "aws-academy/README.md"

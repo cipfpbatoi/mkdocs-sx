@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Sincronitza el contingut del repositori GitBook (gitbook-sx) cap a `content/`.
 
-Font de veritat:
+ATENCIÓ: importació antiga i destructiva. Aquest repositori és la font de veritat.
+La importació sobreescriu contingut local i la navegació.
+
+Estructura de la font importada:
   * `gitbook-docs.yaml`  -> ordre i títol dels espais (pestanyes de MkDocs).
   * `<espai>/SUMMARY.md` -> pàgines publicades i la seua jerarquia.
 
 Ús habitual (amb el remot `upstream` apuntant a arturocandela/gitbook-sx):
 
     git fetch upstream
-    python scripts/sync_gitbook.py --ref upstream/main
+    python scripts/sync_gitbook.py --ref upstream/main --overwrite-local-content
     mkdocs build --strict
 
 També accepta un directori ja descarregat: `--src /ruta/a/gitbook-sx`.
@@ -346,7 +349,11 @@ def main() -> None:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--ref", help="referència git (p. ex. upstream/main)")
     g.add_argument("--src", type=Path, help="directori amb una còpia del repositori GitBook")
+    ap.add_argument("--overwrite-local-content", action="store_true",
+                    help="confirma que es poden sobreescriure els espais locals i la navegació")
     args = ap.parse_args()
+    if not args.overwrite_local_content:
+        ap.error("la importació sobreescriu contingut local; cal indicar --overwrite-local-content")
     if args.src:
         sync(args.src.resolve())
     else:
