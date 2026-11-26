@@ -30,10 +30,10 @@ flowchart TB
     resolver["Resolutor DNS"]
     netsx["DNS autoritatiu de netsx.es<br/>Delegació i glue de nomcognom"]
 
-    subgraph aws["AWS · instàncies EC2"]
-        pare["Ubuntu Server 24.04 · IP_PARE<br/>BIND9: nomcognom.netsx.es<br/>Apache2 + Certbot: www.nomcognom.netsx.es"]
-        linux["Ubuntu Server 24.04 · IP_SUBLIN<br/>BIND9: sublin.nomcognom.netsx.es<br/>dns1.sublin.nomcognom.netsx.es"]
-        windows["Windows Server 2022 · IP_SUBWIN<br/>Windows DNS: subwin.nomcognom.netsx.es<br/>dns1.subwin.nomcognom.netsx.es"]
+    subgraph aws["☁️ AWS · instàncies EC2"]
+        pare["🐧 Ubuntu Server 24.04 · IP_PARE<br/>BIND9: nomcognom.netsx.es<br/>Apache2 + Certbot: www.nomcognom.netsx.es"]
+        linux["🐧 Ubuntu Server 24.04 · IP_SUBLIN<br/>BIND9: sublin.nomcognom.netsx.es<br/>dns1.sublin.nomcognom.netsx.es"]
+        windows["🪟 Windows Server 2022 · IP_SUBWIN<br/>Windows DNS: subwin.nomcognom.netsx.es<br/>dns1.subwin.nomcognom.netsx.es"]
     end
 
     client -->|"1. Consulta DNS"| resolver
